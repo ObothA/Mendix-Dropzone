@@ -15,7 +15,7 @@ class DropZone extends Component<DropZoneProps, {}> {
   }
 
   componentDidMount() {
-        const myDropzone = new Dropzone("#myId", {
+        const myDropzone = new Dropzone("div", {
             url: "/file/post",
             maxFilesize: 3,
             maxFiles: 1,
