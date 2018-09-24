@@ -10,7 +10,10 @@ interface DropZoneProps {
 
 class DropZone extends Component<DropZoneProps, {}> {
   render() {
-    return createElement("form", { className: "dropzone", id: "dropzoneArea" });
+    return createElement("div", { className: "dropzoneContainer" },
+      createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton" }),
+      createElement("form", { className: "dropzone", id: "dropzoneArea" })
+    );
   }
 
   componentDidMount() {
