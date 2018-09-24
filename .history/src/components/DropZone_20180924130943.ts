@@ -1,6 +1,5 @@
 import { Component, createElement } from "react";
 import "../ui/DropZone.css";
-import "dropzone/dist/dropzone.css";
 
 import * as Dropzone from "dropzone";
 
@@ -11,10 +10,7 @@ interface DropZoneProps {
 
 class DropZone extends Component<DropZoneProps, {}> {
   render() {
-    return createElement("div", { className: "dropzoneContainer" },
-      createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton" }),
-      createElement("form", { className: "dropzone", id: "dropzoneArea" })
-    );
+    return createElement("form", { className: "dropzone", id: "dropzoneArea" });
   }
 
   componentDidMount() {
@@ -34,6 +30,17 @@ class DropZone extends Component<DropZoneProps, {}> {
 
     myDropzone.on("success", () => alert("..."));
   }
+
+  // private renderDropZone = () => {
+  //       const dropZone = new Dropzone(this.DropContainer(), { url: "/file/post" }) as any;
+
+  //       return dropZone;
+  //   }
+
+  // private DropContainer = (): HTMLElement => {
+
+  //     return document.getElementById("root") as HTMLElement;
+  //   }
 }
 
 export default DropZone;

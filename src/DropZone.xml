@@ -4,6 +4,11 @@
     <description>Sample description</description>
     <icon/>
     <properties>
+        <property key="message" type="translatableString" required="false">
+            <caption>Initial Message</caption>
+            <category>Display</category>
+            <description>The message that gets displayed before any files are dropped.</description>
+        </property>
         <property key="sampleText" type="translatableString" required="false">
             <caption>Default value</caption>
             <category>General</category>
