@@ -1,5 +1,6 @@
 import { Component, createElement } from "react";
 import "../ui/DropZone.css";
+import "dropzone/dist/dropzone.css";
 
 import * as Dropzone from "dropzone";
 
@@ -30,17 +31,6 @@ class DropZone extends Component<DropZoneProps, {}> {
 
     myDropzone.on("success", () => alert("..."));
   }
-
-  // private renderDropZone = () => {
-  //       const dropZone = new Dropzone(this.DropContainer(), { url: "/file/post" }) as any;
-
-  //       return dropZone;
-  //   }
-
-  // private DropContainer = (): HTMLElement => {
-
-  //     return document.getElementById("root") as HTMLElement;
-  //   }
 }
 
 export default DropZone;
