@@ -1,4 +1,5 @@
 import { Component, createElement } from "react";
+import "../ui/DropZone.css";
 
 import * as Dropzone from "dropzone";
 
@@ -8,13 +9,15 @@ interface DropZoneProps {
 
 class DropZone extends Component<DropZoneProps, {}> {
   render() {
-      // return createElement("div", {}, this.renderDropZone());
-      // const myDropzone = new Dropzone("div#myId", { url: "/file/post" });
-    return createElement("div", { className: "dropzone", id: "myId" });
+    return createElement("form", { className: "dropzone", id: "dropzoneArea" });
   }
 
   componentDidMount() {
-    const myDropzone = new Dropzone("#myId", { url: "/file/post" });
+    this.setupDropZone();
+  }
+
+  private setupDropZone() {
+    const myDropzone = new Dropzone("#dropzoneArea", { url: "/file/post" });
 
     myDropzone.on("success", () => alert("..."));
   }
