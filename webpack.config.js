@@ -1,11 +1,11 @@
-const path = require("path");
 const webpack = require("webpack");
+const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
-const package = require("./package");
-const widgetName = package.widgetName;
-const name = package.widgetName.toLowerCase();
+const pkg = require("./package");
+const widgetName = pkg.widgetName;
+const name = pkg.widgetName.toLowerCase();
 
 const widgetConfig = {
     entry: `./src/components/${widgetName}Container.ts`,
@@ -14,52 +14,36 @@ const widgetConfig = {
         filename: `src/com/mendix/widget/custom/${name}/${widgetName}.js`,
         libraryTarget: "umd"
     },
-    devServer: {
-        port: 3000,
-        proxy: [ {
-            context: [ "**", "!/com/mendix/widget/custom/badge/Badge.js" ],
-            target: "http://localhost:8080"
-        } ]
-    },
     resolve: {
-        extensions: [ ".ts", ".js" ],
+        extensions: [ ".ts", ".js", ".json" ],
         alias: {
             "tests": path.resolve(__dirname, "./tests")
         }
     },
     module: {
         rules: [
-            {
-                test: /\.(ts|tsx)?$/,
-                use: [
-                    {
-                        loader: "ts-loader"
-                    }
-                ]
-            },
-            { test: /\.(css|scss)$/,use: [
-                "raw-loader", "css-loader", "sass-loader"
-            ] },
-            { test: /\.png$/, loader: "url-loader?limit=100000" },
-            { test: /\.jpg$/, loader: "file-loader" },
-            { test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/, loader: "url-loader?limit=10000&mimetype=application/font-woff" },
-            { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: "url-loader?limit=10000&mimetype=application/octet-stream" },
-            { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: "file-loader" },
-            { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: "url-loader?limit=10000&mimetype=image/svg+xml" }
+            { test: /\.ts$/, use: "ts-loader" },
+            { test: /\.css$/, loader: ExtractTextPlugin.extract({
+                fallback: "style-loader",
+                use: "css-loader"
+            }) },
+            { test: /\.scss$/, loader: ExtractTextPlugin.extract({
+                fallback: "style-loader",
+                use: "css-loader!sass-loader"
+            }) }
         ]
     },
     devtool: "source-map",
-    mode: "development",
     externals: [ "react", "react-dom" ],
     plugins: [
-        new CopyWebpackPlugin([ {
-            from: "src/**/*.xml"
-        } ], {
+        new CopyWebpackPlugin([
+            { from: "src/**/*.js" },
+            { from: "src/**/*.xml" },
+            { from: "src/**/*.png", to: `src/com/mendix/widget/custom/${name}/` }
+        ], {
             copyUnmodified: true
         }),
-        new ExtractTextPlugin({
-            filename: `./src/com/mendix/widget/custom/${name}/ui/${widgetName}.css`
-        }),
+        new ExtractTextPlugin({ filename: `./src/com/mendix/widget/custom/${name}/ui/${widgetName}.css` }),
         new webpack.LoaderOptionsPlugin({
             debug: true
         })
@@ -77,28 +61,23 @@ const previewConfig = {
         extensions: [ ".ts", ".js" ]
     },
     module: {
-        rules: [ {
-                test: /\.(ts|tsx)?$/,
-                use: [
-                    {
-                        loader: "ts-loader"
-                    }
-                ]
-            }, {
-                test: /\.css$/,
-                use: "raw-loader"
-            },
-            {
-                test: /\.scss$/,
-                use: [ "raw-loader", "sass-loader" ]
-            }
+        rules: [
+            { test: /\.ts$/, loader: "ts-loader", options: {
+                compilerOptions: {
+                    "module": "CommonJS",
+                }
+            }},
+            { test: /\.css$/, use: "raw-loader" },
+            { test: /\.scss$/, use: [
+                { loader: "raw-loader" },
+                { loader: "sass-loader" }
+            ] }
         ]
     },
-    mode: "development",
     devtool: "inline-source-map",
     externals: [ "react", "react-dom" ],
     plugins: [
-      new webpack.LoaderOptionsPlugin({ debug: true })
+        new webpack.LoaderOptionsPlugin({ debug: true })
     ]
 };
 
