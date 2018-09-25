@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="com.mendix.widget.custom.dropzone.DropZone" needsEntityContext="false" offlineCapable="true" xmlns="http://www.mendix.com/widget/1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../xsd/widget.xsd">
+    <name>DropZone</name>
+    <description>Sample description</description>
+    <icon/>
+    <properties>
+        <property key="message" type="translatableString" required="false">
+            <caption>Initial Message</caption>
+            <category>Display</category>
+            <description>The message that gets displayed before any files are dropped.</description>
+        </property>
+        <property key="sampleText" type="translatableString" required="false">
+            <caption>Default value</caption>
+            <category>General</category>
+            <description>Sample text input</description>
+            <translations>
+                <translation lang="en_US">text</translation>
+                <translation lang="nl_NL">tekst</translation>
+            </translations>
+        </property>
+    </properties>
+</widget>

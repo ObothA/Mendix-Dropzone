@@ -34,12 +34,6 @@ class DropZone extends Component<DropZoneProps, DropZoneState> {
         });
     }
 
-    componentWillReceiveProps(newProps: DropZoneProps) {
-        this.setState({
-            contextObject: newProps.mxObject
-        });
-    }
-
     private setupDropZone() {
         const myDropzone = new Dropzone("#dropzoneArea", {
             url: "/file/post",
