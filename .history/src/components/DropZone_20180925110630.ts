@@ -1,7 +1,6 @@
 import { Component, createElement } from "react";
 import "../ui/DropZone.css";
 import "dropzone/dist/dropzone.css";
-import { Alert } from "./Alert";
 
 import * as Dropzone from "dropzone";
 
@@ -15,21 +14,17 @@ interface DropZoneProps {
 interface DropZoneState {
     dropzoneObject: Dropzone | null;
     contextObject: mendix.lib.MxObject;
-    maxFileSizeError: string;
 }
 
 class DropZone extends Component<DropZoneProps, DropZoneState> {
     state: DropZoneState = {
         dropzoneObject: null,
-        contextObject: this.props.mxObject,
-        maxFileSizeError: ""
+        contextObject: this.props.mxObject
     };
-
     render() {
         return createElement("div", { className: "dropzoneContainer" },
             createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton", onClick: this.handleUploud }),
-            createElement("form", { className: "dropzone", id: "dropzoneArea" }),
-            createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.maxFileSizeError)
+            createElement("form", { className: "dropzone", id: "dropzoneArea" })
         );
     }
 
@@ -39,17 +34,11 @@ class DropZone extends Component<DropZoneProps, DropZoneState> {
         });
     }
 
-    componentWillReceiveProps(newProps: DropZoneProps) {
-        this.setState({
-            contextObject: newProps.mxObject
-        });
-    }
-
     private setupDropZone() {
         const myDropzone = new Dropzone("#dropzoneArea", {
             url: "/file/post",
-            maxFilesize: 1,
-            maxFiles: 2,
+            maxFilesize: 3,
+            maxFiles: 1,
             dictDefaultMessage: this.props.message,
             uploadMultiple: true,
             autoProcessQueue: false,
@@ -58,7 +47,6 @@ class DropZone extends Component<DropZoneProps, DropZoneState> {
         });
 
         myDropzone.on("success", () => alert("..."));
-        myDropzone.on("error", this.handleErrors);
 
         return myDropzone;
     }
@@ -96,29 +84,6 @@ class DropZone extends Component<DropZoneProps, DropZoneState> {
                 }
             });
         });
-    }
-
-    }
-
-    private handleErrors = (file: Dropzone.DropzoneFile, message: string) => {
-      if (message.toLowerCase().includes("file is too big")) {
-        const displayMessage = `${file.name} wont be uploaded, ${message}`;
-        this.setState({
-            maxFileSizeError: displayMessage
-            // rejectedFile: file.name
-         });
-
-        if (this.state.dropzoneObject) {
-        this.state.dropzoneObject.removeFile(file);
-        }
-    } else {
-      const displayMessage = `${file.name} wont be uploaded, ${message}`;
-      if (this.state.dropzoneObject) {
-        this.state.dropzoneObject.removeFile(file);
-        }
-      this.setState({
-        maxFileSizeError: displayMessage
-      });
     }
 
     }

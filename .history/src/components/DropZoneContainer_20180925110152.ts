@@ -16,20 +16,7 @@ export interface DropZoneContainerProps extends WrapperProps {
     contextAssociation: string;
 }
 
-interface ContainerState {
-    mxObject: mendix.lib.MxObject;
-}
-
-export default class DropZoneContainer extends Component<DropZoneContainerProps, ContainerState > {
-
-    state: ContainerState = {
-        mxObject: this.props.mxObject
-    };
-    componentWillReceiveProps(newProps: DropZoneContainerProps) {
-        this.setState({
-            mxObject: newProps.mxObject
-        });
-    }
+export default class DropZoneContainer extends Component<DropZoneContainerProps, {}> {
     render() {
         return createElement(DropZone, {
             message: this.props.message,
@@ -38,6 +25,7 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
             mxObject: this.props.mxObject
         });
     }
+
 
     public static parseStyle(style = ""): { [key: string]: string } {
         try {
