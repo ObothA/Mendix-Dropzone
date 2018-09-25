@@ -17,7 +17,7 @@
 
         <property key="message" type="translatableString" required="false">
             <caption>Initial Message</caption>
-            <category>Appearance</category>
+            <category>Display</category>
             <description>The message that gets displayed before any files are dropped.</description>
             <translations>
                 <translation lang="en_US">text</translation>

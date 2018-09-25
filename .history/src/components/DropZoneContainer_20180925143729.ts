@@ -39,7 +39,7 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
             contextAssociation: this.props.contextAssociation,
             mxObject: this.props.mxObject,
             maxFileSize: this.props.maxFileSize,
-            maxFiles: this.props.maxFiles
+            maxFiles:this.props.maxFiles
         });
     }
 

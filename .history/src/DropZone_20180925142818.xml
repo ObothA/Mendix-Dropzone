@@ -6,18 +6,18 @@
     <properties>
         <property key="fileEntity" type="entity">
             <caption>File entity</caption>
-            <category>Data source</category>
+            <category>Data</category>
             <description></description>
         </property>
         <property key="contextAssociation" type="entity"  isPath="yes" pathType="reference" required="false" entityProperty="fileEntity">
             <caption>Association to context</caption>
-            <category>Data source</category>
+            <category>Data</category>
             <description>If provided used to set the association of new files to the context. Should be a path to the context.</description>
         </property>
 
         <property key="message" type="translatableString" required="false">
             <caption>Initial Message</caption>
-            <category>Appearance</category>
+            <category>Display</category>
             <description>The message that gets displayed before any files are dropped.</description>
             <translations>
                 <translation lang="en_US">text</translation>
@@ -26,12 +26,12 @@
         </property>
         <property key="maxFileSize" type="integer" defaultValue="5">
             <caption>maxFileSize</caption>
-            <category>Appearance</category>
+            <category>Settings</category>
             <description>Maximum file size in MB</description>
         </property>
         <property key="maxFiles" type="integer" defaultValue="5">
             <caption>maxFiles</caption>
-            <category>Appearance</category>
+            <category>Settings</category>
             <description>Maximum files</description>
         </property>
 

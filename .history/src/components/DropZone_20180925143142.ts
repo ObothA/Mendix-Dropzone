@@ -11,7 +11,6 @@ interface DropZoneProps {
     contextAssociation: string;
     mxObject: mendix.lib.MxObject;
     maxFileSize: number;
-    maxFiles: number;
 }
 
 interface DropZoneState {
@@ -51,7 +50,7 @@ class DropZone extends Component<DropZoneProps, DropZoneState> {
         const myDropzone = new Dropzone("#dropzoneArea", {
             url: "/file/post",
             maxFilesize: this.props.maxFileSize,
-            maxFiles: this.props.maxFiles,
+            maxFiles: 2,
             dictDefaultMessage: this.props.message,
             uploadMultiple: true,
             autoProcessQueue: false,

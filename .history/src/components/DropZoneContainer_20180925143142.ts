@@ -15,7 +15,6 @@ export interface DropZoneContainerProps extends WrapperProps {
     message: string;
     contextAssociation: string;
     maxFileSize: number;
-    maxFiles: number;
 }
 
 interface ContainerState {
@@ -38,8 +37,7 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
             fileEntity: this.props.fileEntity,
             contextAssociation: this.props.contextAssociation,
             mxObject: this.props.mxObject,
-            maxFileSize: this.props.maxFileSize,
-            maxFiles: this.props.maxFiles
+            maxFileSize: this.props.maxFileSize
         });
     }
 
