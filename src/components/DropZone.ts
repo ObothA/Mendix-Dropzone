@@ -28,9 +28,9 @@ class DropZone extends Component<DropZoneProps, {}> {
         maxFiles: 1,
         dictDefaultMessage: this.props.message,
         uploadMultiple: true,
-        autoProcessQueue: true,
+        autoProcessQueue: false,
         acceptedFiles: "",
-        addRemoveLinks: false});
+        addRemoveLinks: true});
 
     myDropzone.on("success", () => alert("..."));
   }
