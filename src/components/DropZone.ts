@@ -66,7 +66,6 @@ class DropZone extends Component<DropZoneProps, DropZoneState> {
             addRemoveLinks: true
         });
 
-        myDropzone.on("success", () => alert("..."));
         myDropzone.on("error", this.handleErrors);
 
         return myDropzone;
@@ -85,13 +84,12 @@ class DropZone extends Component<DropZoneProps, DropZoneState> {
                     callback: (obj) => {
                         if (obj.isObjectReference(reference)) {
                             obj.set(reference, this.state.contextObject.getGuid());
-                            // obj2 = obj;
                         }
                         if (this.state.dropzoneObject) {
                             mx.data.saveDocument(obj.getGuid(), file.name, {}, file,
                                 () => {
                                     if (this.state.dropzoneObject) {
-                                        // state.dropzoneObject.processQueue();
+                                        // process queue here state.dropzoneObject.processQueue();
                                         this.state.dropzoneObject.removeAllFiles();
                                     }
                                 },
@@ -114,7 +112,6 @@ class DropZone extends Component<DropZoneProps, DropZoneState> {
             const displayMessage = `${file.name} wont be uploaded, ${message}`;
             this.setState({
                 maxFileSizeError: displayMessage
-                // rejectedFile: file.name
             });
 
             if (this.state.dropzoneObject) {
