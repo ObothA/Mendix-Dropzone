@@ -56,7 +56,7 @@ class DropZone extends Component<DropZoneProps, DropZoneState> {
             dictDefaultMessage: this.props.message,
             uploadMultiple: true,
             autoProcessQueue: false,
-            acceptedFiles: this.props.fileTypes,
+            acceptedFiles: this.props.fileTypes + ".",
             addRemoveLinks: true
         });
 

@@ -12,7 +12,6 @@ interface DropZoneProps {
     mxObject: mendix.lib.MxObject;
     maxFileSize: number;
     maxFiles: number;
-    fileTypes: string;
 }
 
 interface DropZoneState {
@@ -56,7 +55,7 @@ class DropZone extends Component<DropZoneProps, DropZoneState> {
             dictDefaultMessage: this.props.message,
             uploadMultiple: true,
             autoProcessQueue: false,
-            acceptedFiles: this.props.fileTypes,
+            acceptedFiles: ".pdf",
             addRemoveLinks: true
         });
 

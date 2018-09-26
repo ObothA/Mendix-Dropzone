@@ -27,7 +27,7 @@
         <property key="fileTypes" type="string">
             <caption>File types</caption>
             <category>Appearance</category>
-            <description>Comma seperated list of file extensions e.g .pdf, .txt</description>
+            <description>File extension types to be uploaded</description>
         </property>
         <property key="maxFileSize" type="integer" defaultValue="5">
             <caption>maxFileSize</caption>
