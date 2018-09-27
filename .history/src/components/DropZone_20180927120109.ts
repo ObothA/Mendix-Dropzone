@@ -56,7 +56,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             dictDefaultMessage: this.props.message,
             uploadMultiple: true,
             autoProcessQueue: false,
-            acceptedFiles: this.props.fileTypes.replace(/;/gi, ","),
+            acceptedFiles: this.props.fileTypes,
             addRemoveLinks: true
         });
 
