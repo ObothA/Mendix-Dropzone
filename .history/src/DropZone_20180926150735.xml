@@ -16,7 +16,7 @@
         </property>
 
         <property key="message" type="translatableString" required="false">
-            <caption>Initial message</caption>
+            <caption>Initial Message</caption>
             <category>Appearance</category>
             <description>The message that gets displayed before any files are dropped.</description>
             <translations>
@@ -30,12 +30,12 @@
             <description>Comma seperated list of file extensions e.g .pdf, .txt</description>
         </property>
         <property key="maxFileSize" type="integer" defaultValue="5">
-            <caption>Maximum file size (MB)</caption>
+            <caption>Max file size</caption>
             <category>Appearance</category>
             <description>Maximum file size in MB</description>
         </property>
         <property key="maxFiles" type="integer" defaultValue="5">
-            <caption>Maxixum files</caption>
+            <caption>Max files</caption>
             <category>Appearance</category>
             <description>Maximum files</description>
         </property>
