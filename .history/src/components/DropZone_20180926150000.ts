@@ -1,8 +1,9 @@
 import { Component, createElement } from "react";
-import * as DropzoneLib from "dropzone";
-import { Alert } from "./Alert";
 import "../ui/DropZone.css";
 import "dropzone/dist/dropzone.css";
+import { Alert } from "./Alert";
+
+import * as DropzoneLib from "dropzone";
 
 interface DropzoneProps {
     message: string;
