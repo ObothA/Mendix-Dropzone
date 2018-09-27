@@ -97,6 +97,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                         }
                     },
                     error(documentError) {
+                        // tslint:disable-next-line:no-console
                         window.logger.error("Could not commit object:", documentError);
                     }
                 });
