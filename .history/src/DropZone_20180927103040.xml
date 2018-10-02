@@ -27,7 +27,7 @@
         <property key="fileTypes" type="string" required="false">
             <caption>File types</caption>
             <category>Appearance</category>
-            <description>Semi colon  seperated list of file extensions e.g .pdf ; .txt</description>
+            <description>Semi colon  seperated list of file extensions e.g .pdf; .txt</description>
         </property>
         <property key="maxFileSize" type="integer" defaultValue="5">
             <caption>Maximum file size (MB)</caption>
@@ -38,12 +38,6 @@
             <caption>Maxixum files</caption>
             <category>Appearance</category>
             <description>Maximum files</description>
-        </property>
-
-        <property key="autoUpload" type="boolean" defaultValue="false">
-            <caption>Auto Start Upload</caption>
-            <category>Appearance</category>
-            <description>Hide upload button start uploading on drop.</description>
         </property>
 
     </properties>
