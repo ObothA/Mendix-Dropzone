@@ -44,7 +44,7 @@
             <category>Appearance</category>
              <description></description>
         </property>
-        <property key="thumbnailHeight" type="integer" defaultValue="100">
+        <property key="thumbnailHeight" type="integer" defaultValue="75">
             <caption>Thumbnail height</caption>
             <category>Appearance</category>
             <description></description>

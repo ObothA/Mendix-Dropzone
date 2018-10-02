@@ -12,8 +12,6 @@ interface DropzoneProps {
     maxFileSize: number;
     maxFiles: number;
     fileTypes: string;
-    thumbnailHeight: number;
-    thumbnailWidth: number;
 }
 
 interface DropzoneState {
@@ -60,8 +58,8 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             autoProcessQueue: false,
             acceptedFiles: this.props.fileTypes.replace(/;/gi, ","),
             addRemoveLinks: true,
-            thumbnailHeight: this.props.thumbnailHeight,
-            thumbnailWidth: this.props.thumbnailWidth,
+            thumbnailHeight: 70,
+            thumbnailWidth: 10,
             createImageThumbnails: true
         });
 

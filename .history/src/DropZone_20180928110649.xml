@@ -39,12 +39,12 @@
             <category>Appearance</category>
             <description>Maximum files</description>
         </property>
-            <property key="thumbnailWidth" type="integer" defaultValue="100">
+            <property key="thumbnailWidth" type="integer">
             <caption>Thumbnail width</caption>
             <category>Appearance</category>
              <description></description>
         </property>
-        <property key="thumbnailHeight" type="integer" defaultValue="100">
+        <property key="thumbnailHeight" type="integer" required="false">
             <caption>Thumbnail height</caption>
             <category>Appearance</category>
             <description></description>
