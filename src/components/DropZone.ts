@@ -12,97 +12,102 @@ interface DropzoneProps {
     maxFileSize: number;
     maxFiles: number;
     fileTypes: string;
+    autoUpload: string;
 }
 
 interface DropzoneState {
     maxFileSizeError: string;
     fileTypeError: string;
     generalError: string;
+    maxFilesNumberError: string;
 }
 
 export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
-    private dropzoneObject?: DropzoneLib;
-    private contextObject?: mendix.lib.MxObject;
+    private dropzoneObject!: DropzoneLib;
+    private contextObject!: mendix.lib.MxObject;
+    private formNode!: HTMLElement;
+    private reference!: string;
+    private maxFiles!: number;
+    private arrayOfFiles: DropzoneLib.DropzoneFile[] = [];
+    private numberOfFilesAdded = 0;
 
     readonly state: DropzoneState = {
         maxFileSizeError: "",
         fileTypeError: "",
-        generalError: ""
+        generalError: "",
+        maxFilesNumberError: ""
     };
 
     render() {
-        return createElement("div", { className: "dropzoneContainer" },
-            createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton", onClick: this.handleUploud }),
-            createElement("form", { className: "dropzone", id: "dropzoneArea" }),
-            createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.maxFileSizeError),
-            createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileTypeError),
-            createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.generalError)
-        );
+        return this.renderDropzone();
     }
 
     componentDidMount() {
-            this.dropzoneObject = this.setupDropZone();
+        this.dropzoneObject = this.setupDropZone();
     }
 
     componentWillReceiveProps(newProps: DropzoneProps) {
         this.contextObject = newProps.mxObject;
     }
 
+    private renderDropzone = () => {
+        if (this.props.autoUpload) {
+            return createElement("div", { className: "dropzoneContainer" },
+                createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getForm }),
+                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.maxFileSizeError),
+                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileTypeError),
+                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.generalError),
+                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.maxFilesNumberError)
+            );
+        } else {
+            return createElement("div", { className: "dropzoneContainer" },
+                createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton", onClick: () => this.handleUploud() }),
+                createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getForm }),
+                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.maxFileSizeError),
+                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileTypeError),
+                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.generalError),
+                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.maxFilesNumberError)
+            );
+        }
+    }
+
     private setupDropZone() {
-        const myDropzone = new DropzoneLib("#dropzoneArea", {
+        if (this.props.contextAssociation && typeof this.props.contextAssociation.split("/")[0] === "string") {
+            this.reference = this.props.contextAssociation.split("/")[0];
+            this.maxFiles = this.props.maxFiles;
+        } else {
+            this.reference = "";
+            this.maxFiles = 1;
+        }
+
+        const myDropzone = new DropzoneLib(this.formNode, {
             url: "/file/post",
-            maxFilesize: this.props.maxFileSize,
-            maxFiles: this.props.maxFiles,
             dictDefaultMessage: this.props.message,
             uploadMultiple: true,
             autoProcessQueue: false,
-            acceptedFiles: this.props.fileTypes,
             addRemoveLinks: true
         });
 
-        myDropzone.on("error", this.handleErrors);
+        myDropzone.on("error", this.handleErrorsFromLibrary);
+
+        if (this.props.autoUpload) {
+            myDropzone.on("addedfile", (file) => {
+                this.arrayOfFiles.push(file);
+                this.handleUploud();
+            });
+        } else {
+            myDropzone.on("addedfile", (file) => this.arrayOfFiles.push(file));
+        }
 
         return myDropzone;
     }
 
-    private handleUploud = () => {
-        let reference: string;
-        if (this.props.contextAssociation && typeof this.props.contextAssociation.split("/")[0] === "string") {
-            reference = this.props.contextAssociation.split("/")[0];
-        }
+    private customErrorHandler = (file: DropzoneLib.DropzoneFile) => {
 
-        if (this.dropzoneObject) {
-            this.dropzoneObject.files.map((file) => {
-                mx.data.create({
-                    entity: this.props.fileEntity,
-                    callback: (newFileObject) => {
-                        if (newFileObject.isObjectReference(reference) && this.contextObject) {
-                            newFileObject.set(reference, this.contextObject.getGuid());
-                        }
-                        if (this.dropzoneObject) {
-                            mx.data.saveDocument(newFileObject.getGuid(), file.name, {}, file,
-                                () => {
-                                    if (this.dropzoneObject) {
-                                        // Process queue here state.dropzoneObject.processQueue();
-                                        this.dropzoneObject.removeAllFiles();
-                                    }
-                                },
-                                saveDocumentError => window.logger.error(saveDocumentError)
-                            );
-                        }
-                    },
-                    error: (createMxObjectError) => {
-                        window.logger.error("Could not commit object:", createMxObjectError);
-                    }
-                });
-            });
-        }
-
-    }
-
-    private handleErrors = (file: DropzoneLib.DropzoneFile, message: string) => {
-        if (message.toLowerCase().includes("file is too big")) {
-            const displayMessage = `${file.name} wont be uploaded, ${message}`;
+        /* File size limit in bytes */
+        const sizeLimit = this.props.maxFileSize * (2 ** 20);
+        if (file.size > sizeLimit) {
+            const displayMessage = `${file.name} wont be uploaded, file too big, limit is ${this.props.maxFileSize} MB(s)`;
             this.setState({
                 maxFileSizeError: displayMessage
             });
@@ -110,17 +115,86 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             if (this.dropzoneObject) {
                 this.dropzoneObject.removeFile(file);
             }
+            return true;
         }
 
-        if (message.toLowerCase().includes("You can't upload files of this type")) {
+        /* limit number of files */
+        if (this.numberOfFilesAdded > this.maxFiles) {
+            const displayMessage = `${file.name} wont be uploaded, exceded limit of ${this.maxFiles} files`;
+            this.setState({
+                maxFilesNumberError: displayMessage
+            });
+
             if (this.dropzoneObject) {
                 this.dropzoneObject.removeFile(file);
             }
-            const displayMessage = `${file.name} wont be uploaded, ${message}`;
+            return true;
+        }
+
+        /* file type error */
+        const fileExtension = file.name.split(".").pop();
+        /* Check if file type prop is set, file extesion is set and if the extension is on our list */
+        if (this.props.fileTypes && fileExtension && !this.props.fileTypes.includes(fileExtension)) {
+            const displayMessage = `${file.name} wont be uploaded, file type not support for upload`;
             this.setState({
                 fileTypeError: displayMessage
             });
+
+            if (this.dropzoneObject) {
+                this.dropzoneObject.removeFile(file);
+            }
+            return true;
         } else {
+            this.numberOfFilesAdded++;
+            return false;
+        }
+    }
+
+    /* check for errors before upload */
+    private handleUploud = () => {
+        if (this.arrayOfFiles.length) {
+            this.arrayOfFiles.map((file) => {
+                if (this.customErrorHandler(file)) {
+                    this.arrayOfFiles.splice(0, 1);
+                } else {
+                    this.upload(file);
+                }
+            });
+        }
+
+    }
+
+    /* Generic upload function */
+    private upload = (file: DropzoneLib.DropzoneFile) => {
+
+        mx.data.create({
+            entity: this.props.fileEntity,
+            callback: (newFileObject) => {
+                if (newFileObject.isObjectReference(this.reference) && this.contextObject) {
+                    newFileObject.set(this.reference, this.contextObject.getGuid());
+                }
+                if (this.dropzoneObject) {
+                    mx.data.saveDocument(newFileObject.getGuid(), file.name, {}, file,
+                        () => {
+                            if (this.dropzoneObject) {
+                                // Remove file from array after upload
+                                this.arrayOfFiles.splice(0, 1);
+
+                                // Process queue here state.dropzoneObject.processQueue();
+                                // this.dropzoneObject.removeAllFiles();
+                            }
+                        },
+                        saveDocumentError => window.logger.error(saveDocumentError)
+                    );
+                }
+            },
+            error: (createMxObjectError) => {
+                window.logger.error("Could not commit object:", createMxObjectError);
+            }
+        });
+    }
+
+    private handleErrorsFromLibrary = (file: DropzoneLib.DropzoneFile, message: string) => {
             const displayMessage = `${file.name} wont be uploaded, ${message}`;
             if (this.dropzoneObject) {
                 this.dropzoneObject.removeFile(file);
@@ -130,5 +204,8 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                 generalError: displayMessage
             });
         }
+
+    private getForm = (node: HTMLElement) => {
+        this.formNode = node;
     }
 }
