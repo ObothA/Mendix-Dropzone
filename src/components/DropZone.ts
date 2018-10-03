@@ -29,7 +29,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private reference!: string;
     private maxFiles!: number;
     private arrayOfFiles: DropzoneLib.DropzoneFile[] = [];
-    private numberOfFilesAdded = 0;
+    private numberOfFilesAdded = 1;
 
     readonly state: DropzoneState = {
         maxFileSizeError: "",
@@ -81,7 +81,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         }
 
         const myDropzone = new DropzoneLib(this.formNode, {
-            url: "/file/post",
+            url: "/not/required/",
             dictDefaultMessage: this.props.message,
             uploadMultiple: true,
             autoProcessQueue: false,
@@ -103,7 +103,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     }
 
     private customErrorHandler = (file: DropzoneLib.DropzoneFile) => {
-
+        const fileExtension = file.name.split(".").pop();
         /* File size limit in bytes */
         const sizeLimit = this.props.maxFileSize * (2 ** 20);
         if (file.size > sizeLimit) {
@@ -116,10 +116,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                 this.dropzoneObject.removeFile(file);
             }
             return true;
-        }
-
-        /* limit number of files */
-        if (this.numberOfFilesAdded > this.maxFiles) {
+        } else if (this.numberOfFilesAdded > this.maxFiles) {
             const displayMessage = `${file.name} wont be uploaded, exceded limit of ${this.maxFiles} files`;
             this.setState({
                 maxFilesNumberError: displayMessage
@@ -129,12 +126,9 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                 this.dropzoneObject.removeFile(file);
             }
             return true;
-        }
-
-        /* file type error */
-        const fileExtension = file.name.split(".").pop();
-        /* Check if file type prop is set, file extesion is set and if the extension is on our list */
-        if (this.props.fileTypes && fileExtension && !this.props.fileTypes.includes(fileExtension)) {
+        } else if (this.props.fileTypes && fileExtension && !this.props.fileTypes.includes(fileExtension)) {
+            /* file type error */
+             /* Check if file type prop is set, file extesion is set and if the extension is on our list */
             const displayMessage = `${file.name} wont be uploaded, file type not support for upload`;
             this.setState({
                 fileTypeError: displayMessage
@@ -154,11 +148,13 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private handleUploud = () => {
         if (this.arrayOfFiles.length) {
             this.arrayOfFiles.map((file) => {
+                if (file.status === "added") {
                 if (this.customErrorHandler(file)) {
                     this.arrayOfFiles.splice(0, 1);
                 } else {
                     this.upload(file);
                 }
+            }
             });
         }
 
@@ -166,7 +162,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     /* Generic upload function */
     private upload = (file: DropzoneLib.DropzoneFile) => {
-
         mx.data.create({
             entity: this.props.fileEntity,
             callback: (newFileObject) => {
@@ -177,11 +172,10 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                     mx.data.saveDocument(newFileObject.getGuid(), file.name, {}, file,
                         () => {
                             if (this.dropzoneObject) {
-                                // Remove file from array after upload
+                                /* Remove file from array after upload */
                                 this.arrayOfFiles.splice(0, 1);
-
-                                // Process queue here state.dropzoneObject.processQueue();
-                                // this.dropzoneObject.removeAllFiles();
+                                this.dropzoneObject.emit("complete", file);
+                                this.dropzoneObject.emit("success", file);
                             }
                         },
                         saveDocumentError => window.logger.error(saveDocumentError)
