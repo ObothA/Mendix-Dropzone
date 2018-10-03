@@ -64,7 +64,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             );
         } else {
             return createElement("div", { className: "dropzoneContainer" },
-                createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton", onClick: () => this.handleUploud() }),
+                createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton", onClick: this.handleUploud }),
                 createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getForm }),
                 createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.maxFileSizeError),
                 createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileTypeError),
@@ -160,6 +160,8 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                 } else {
                     this.upload(file);
                 }
+            } else if (!this.props.autoUpload) {
+                this.upload(file);
             }
             });
         }
@@ -175,14 +177,15 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                     newFileObject.set(this.reference, this.contextObject.getGuid());
                 }
                 if (this.dropzoneObject) {
+                    /* emit progress initial stage */
+                    this.dropzoneObject.emit("uploadprogress", file, 0);
                     mx.data.saveDocument(newFileObject.getGuid(), file.name, {}, file,
                         () => {
-                            if (this.dropzoneObject) {
                                 /* Remove file from array after upload */
                                 this.arrayOfFiles.splice(0, 1);
+                                this.dropzoneObject.emit("uploadprogress", file, 50);
                                 this.dropzoneObject.emit("complete", file);
                                 this.dropzoneObject.emit("success", file);
-                            }
                         },
                         saveDocumentError => window.logger.error(saveDocumentError)
                     );
