@@ -13,8 +13,6 @@ interface DropzoneProps {
     maxFiles: number;
     fileTypes: string;
     autoUpload: string;
-    thumbnailWidth: number;
-    thumbnailHeight: number;
 }
 
 interface DropzoneState {
@@ -22,7 +20,6 @@ interface DropzoneState {
     fileTypeError: string;
     generalError: string;
     maxFilesNumberError: string;
-
 }
 
 export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
@@ -88,10 +85,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             dictDefaultMessage: this.props.message,
             uploadMultiple: true,
             autoProcessQueue: false,
-            addRemoveLinks: true,
-            createImageThumbnails: true,
-            thumbnailWidth: this.props.thumbnailWidth,
-            thumbnailHeight: this.props.thumbnailHeight
+            addRemoveLinks: true
         });
 
         myDropzone.on("error", this.handleErrorsFromLibrary);

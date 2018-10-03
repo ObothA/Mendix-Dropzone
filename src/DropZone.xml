@@ -50,5 +50,11 @@
             <description></description>
         </property>
 
+        <property key="autoUpload" type="boolean" defaultValue="false">
+            <caption>Auto Start Upload</caption>
+            <category>Appearance</category>
+            <description>Hide upload button start uploading on drop.</description>
+        </property>
+
     </properties>
 </widget>
