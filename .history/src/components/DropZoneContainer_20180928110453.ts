@@ -17,7 +17,6 @@ export interface DropZoneContainerProps extends WrapperProps {
     maxFileSize: number;
     maxFiles: number;
     fileTypes: string;
-    autoUpload: string;
     thumbnailWidth: number;
     thumbnailHeight: number;
 }
@@ -33,9 +32,9 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
             maxFileSize: this.props.maxFileSize,
             maxFiles: this.props.maxFiles,
             fileTypes: this.props.fileTypes,
-            autoUpload: this.props.autoUpload,
-            thumbnailHeight: this.props.thumbnailHeight,
-            thumbnailWidth: this.props.thumbnailWidth
+            thumbnailWidth: this.props.thumbnailWidth,
+            thumbnailHeight: this.props.thumbnailHeight
+
         });
     }
 
