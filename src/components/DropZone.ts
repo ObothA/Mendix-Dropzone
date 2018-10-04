@@ -105,6 +105,8 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             myDropzone.on("addedfile", (file) => this.arrayOfFiles.push(file));
         }
 
+        myDropzone.on("removedfile", (file) => { this.handleRemovedFile(file); });
+
         return myDropzone;
     }
 
@@ -134,7 +136,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             return true;
         } else if (this.props.fileTypes && fileExtension && !this.props.fileTypes.includes(fileExtension)) {
             /* file type error */
-             /* Check if file type prop is set, file extesion is set and if the extension is on our list */
+            /* Check if file type prop is set, file extesion is set and if the extension is on our list */
             const displayMessage = `${file.name} wont be uploaded, file type not support for upload`;
             this.setState({
                 fileTypeError: displayMessage
@@ -150,19 +152,40 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         }
     }
 
+    /* handle remove file */
+    private handleRemovedFile = (file: DropzoneLib.DropzoneFile) => {
+        if (typeof file.status.split("?guid=")[1] === "string") {
+            mx.data.remove({
+                guid: file.status.split("?guid=")[1],
+                callback: () => {
+                    window.logger.info("mendix object removed");
+                },
+                error: (removeFileError) => {
+                    window.logger.error(`Error attempting to remove mendix object ${removeFileError}`);
+                }
+            });
+        }
+    }
+
     /* check for errors before upload */
     private handleUploud = () => {
         if (this.arrayOfFiles.length) {
             this.arrayOfFiles.map((file) => {
                 if (file.status === "added") {
-                if (this.customErrorHandler(file)) {
-                    this.arrayOfFiles.splice(0, 1);
-                } else {
-                    this.upload(file);
+                    /* Perform validation */
+                    if (this.customErrorHandler(file)) {
+                        this.arrayOfFiles.splice(0, 1);
+                    } else {
+                        this.upload(file);
+                    }
+                } else if (!this.props.autoUpload) {
+                     /* Perform validation */
+                     if (this.customErrorHandler(file)) {
+                        this.arrayOfFiles.splice(0, 1);
+                    } else {
+                        this.upload(file);
+                    }
                 }
-            } else if (!this.props.autoUpload) {
-                this.upload(file);
-            }
             });
         }
 
@@ -181,11 +204,14 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                     this.dropzoneObject.emit("uploadprogress", file, 0);
                     mx.data.saveDocument(newFileObject.getGuid(), file.name, {}, file,
                         () => {
-                                /* Remove file from array after upload */
-                                this.arrayOfFiles.splice(0, 1);
-                                this.dropzoneObject.emit("uploadprogress", file, 50);
-                                this.dropzoneObject.emit("complete", file);
-                                this.dropzoneObject.emit("success", file);
+                            /* Remove file from array after upload */
+                            const indexOfFile = this.dropzoneObject.files.indexOf(file);
+                            const newFileStatus = `${this.dropzoneObject.files[indexOfFile].status}?guid=${newFileObject.getGuid()}`;
+                            this.dropzoneObject.files[indexOfFile].status = newFileStatus;
+                            this.arrayOfFiles.splice(0, 1);
+                            this.dropzoneObject.emit("uploadprogress", file, 50);
+                            this.dropzoneObject.emit("complete", file);
+                            this.dropzoneObject.emit("success", file);
                         },
                         saveDocumentError => window.logger.error(saveDocumentError)
                     );
@@ -198,15 +224,15 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     }
 
     private handleErrorsFromLibrary = (file: DropzoneLib.DropzoneFile, message: string) => {
-            const displayMessage = `${file.name} wont be uploaded, ${message}`;
-            if (this.dropzoneObject) {
-                this.dropzoneObject.removeFile(file);
-            }
-
-            this.setState({
-                generalError: displayMessage
-            });
+        const displayMessage = `${file.name} wont be uploaded, ${message}`;
+        if (this.dropzoneObject) {
+            this.dropzoneObject.removeFile(file);
         }
+
+        this.setState({
+            generalError: displayMessage
+        });
+    }
 
     private getForm = (node: HTMLElement) => {
         this.formNode = node;
