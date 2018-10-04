@@ -158,6 +158,14 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             mx.data.remove({
                 guid: file.status.split("?guid=")[1],
                 callback: () => {
+                    this.numberOfFilesAdded--;
+                    /* clear errors */
+                    this.setState({
+                        maxFileSizeError: "",
+                        fileTypeError: "",
+                        generalError: "",
+                        maxFilesNumberError: ""
+                    });
                     window.logger.info("mendix object removed");
                 },
                 error: (removeFileError) => {
