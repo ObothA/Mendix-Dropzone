@@ -119,7 +119,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
         myDropzone.on("removedfile", (file) => { this.handleRemovedFile(file); });
         myDropzone.on("drop", () => { this.onDropMicroflow(this.props.mxObject); });
-        myDropzone.on("drop", () => { this.onDropNanoflow(); });
         return myDropzone;
     }
 
@@ -235,7 +234,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                             this.dropzoneObject.emit("complete", file);
                             this.dropzoneObject.emit("success", file);
                             this.onUploadMicroflow(this.props.mxObject);
-                            this.onUploadNanoflow();
                         },
                         saveDocumentError => window.logger.error(saveDocumentError)
                     );
@@ -316,29 +314,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         });
     }
 
-    private onUploadNanoflow() {
-        const context = new mendix.lib.MxContext();
-        mx.data.callNanoflow({
-            nanoflow: this.props.onUploadNanoflow,
-            origin: this.props.mxform,
-            context,
-            error: (error) => {
-                mx.ui.error(error.message);
-            }
-        });
-    }
-
-    private onDropNanoflow() {
-        const context = new mendix.lib.MxContext();
-        mx.data.callNanoflow({
-            nanoflow: this.props.onDropNanoflow,
-            origin: this.props.mxform,
-            context,
-            error: (error) => {
-                mx.ui.error(error.message);
-            }
-        });
-    }
     private getForm = (node: HTMLElement) => {
     this.formNode = node;
 }

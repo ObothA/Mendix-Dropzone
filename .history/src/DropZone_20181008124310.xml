@@ -84,19 +84,19 @@
             <returnType type="Boolean"/>
         </property>
         <property key="onDropNanoflow" type="nanoflow" required="false" entityProperty="fileEntity">
-            <caption>On drop nanoflow</caption>
+            <caption>On drop</caption>
             <category>Events</category>
             <description>Nanoflow is called when file is dropped.</description>
             <returnType type="Boolean"/>
         </property>
         <property key="onRemoveNanoflow" type="nanoflow" required="false" entityProperty="fileEntity">
-            <caption>On remove nanoflow</caption>
+            <caption>On remove</caption>
             <category>Events</category>
             <description>Nanoflow is called when an uploaded file is removed.</description>
             <returnType type="Boolean"/>
         </property>
         <property key="onUploadNanoflow" type="nanoflow" required="false" entityProperty="fileEntity">
-            <caption>On upload nanoflow</caption>
+            <caption>On upload</caption>
             <category>Events</category>
             <description>Nanoflow is called when a file is uploaded.</description>
             <returnType type="Boolean"/>

@@ -119,7 +119,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
         myDropzone.on("removedfile", (file) => { this.handleRemovedFile(file); });
         myDropzone.on("drop", () => { this.onDropMicroflow(this.props.mxObject); });
-        myDropzone.on("drop", () => { this.onDropNanoflow(); });
         return myDropzone;
     }
 
@@ -320,18 +319,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         const context = new mendix.lib.MxContext();
         mx.data.callNanoflow({
             nanoflow: this.props.onUploadNanoflow,
-            origin: this.props.mxform,
-            context,
-            error: (error) => {
-                mx.ui.error(error.message);
-            }
-        });
-    }
-
-    private onDropNanoflow() {
-        const context = new mendix.lib.MxContext();
-        mx.data.callNanoflow({
-            nanoflow: this.props.onDropNanoflow,
             origin: this.props.mxform,
             context,
             error: (error) => {
