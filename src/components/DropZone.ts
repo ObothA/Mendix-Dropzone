@@ -23,12 +23,16 @@ interface DropzoneProps {
     onRemoveNanoflow: Nanoflow;
     onUploadNanoflow: Nanoflow;
     mxContext: mendix.lib.MxContext;
+    onDropEvent: string;
+    onRemoveEvent: string;
+    onUploadEvent: string;
 }
 
 interface Nanoflow {
     nanoflow: object[];
     paramsSpec: { Progress: string };
 }
+
 interface DropzoneState {
     maxFileSizeError: string;
     fileTypeError: string;
@@ -118,8 +122,17 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         }
 
         myDropzone.on("removedfile", (file) => { this.handleRemovedFile(file); });
-        myDropzone.on("drop", () => { this.onDropMicroflow(this.props.mxObject); });
-        myDropzone.on("drop", () => { this.onDropNanoflow(); });
+        myDropzone.on("drop", () => {
+            /* deal with on drop events */
+            if (this.props.onDropEvent !== "doNothing") {
+                if (this.props.onDropEvent === "callMicroflow") {
+                    this.callMicroflow(this.props.onDropMicroflow);
+                } else {
+                    this.callNanoflow(this.props.onDropNanoflow);
+                }
+            }
+         });
+
         return myDropzone;
     }
 
@@ -176,16 +189,28 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                 guid: file.status.split("?guid=")[1],
                 callback: () => {
                     this.numberOfFilesAdded--;
-                    this.onRemoveMicroflow(this.props.mxObject);
-                    this.onRemoveNanoflow();
+                    /* deal with on remove events */
+                    if (this.props.onRemoveEvent !== "doNothing") {
+                        if (this.props.onRemoveEvent === "callMicroflow") {
+                            this.callMicroflow(this.props.onRemoveMicroflow);
+                        } else {
+                            this.callNanoflow(this.props.onRemoveNanoflow);
+                        }
+                    }
                 },
                 error: (removeFileError) => {
                     window.logger.error(`Error attempting to remove mendix object ${removeFileError}`);
                 }
             });
         } else {
-            this.onRemoveMicroflow(this.props.mxObject);
-            this.onRemoveNanoflow();
+            /* deal with on remove events */
+            if (this.props.onRemoveEvent !== "doNothing") {
+                if (this.props.onRemoveEvent === "callMicroflow") {
+                    this.callMicroflow(this.props.onRemoveMicroflow);
+                } else {
+                    this.callNanoflow(this.props.onRemoveNanoflow);
+                }
+            }
         }
     }
 
@@ -234,8 +259,14 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                             this.dropzoneObject.emit("uploadprogress", file, 50);
                             this.dropzoneObject.emit("complete", file);
                             this.dropzoneObject.emit("success", file);
-                            this.onUploadMicroflow(this.props.mxObject);
-                            this.onUploadNanoflow();
+                             /* deal with on upload events */
+                            if (this.props.onUploadEvent !== "doNothing") {
+                                if (this.props.onUploadEvent === "callMicroflow") {
+                                    this.callMicroflow(this.props.onUploadMicroflow);
+                                } else {
+                                    this.callNanoflow(this.props.onUploadNanoflow);
+                                }
+                            }
                         },
                         saveDocumentError => window.logger.error(saveDocumentError)
                     );
@@ -256,90 +287,38 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             generalError: displayMessage
         });
     }
-    private onRemoveMicroflow(mxObject: mendix.lib.MxObject) {
-        if (this.props.onRemoveMicroflow) {
-            mx.data.action({
-                params: {
-                    applyto: "selection",
-                    actionname: this.props.onRemoveMicroflow,
-                    guids: [ mxObject.getGuid() ]
-                },
-                origin: this.props.mxform,
-                error: (error) => {
-                    mx.ui.error(error.message);
-                }
-            });
-        }
 
-    }
-    private onUploadMicroflow(mxObject: mendix.lib.MxObject) {
-        if (this.props.onUploadMicroflow) {
-            mx.data.action({
-                params: {
-                    applyto: "selection",
-                    actionname: this.props.onUploadMicroflow,
-                    guids: [ mxObject.getGuid() ]
-                },
-                origin: this.props.mxform,
-                error: (error) => {
-                    mx.ui.error(error.message);
-                }
-            });
-        }
-
-    }
-    private onDropMicroflow(mxObject: mendix.lib.MxObject) {
-        if (this.props.onDropMicroflow) {
-            mx.data.action({
-                params: {
-                    applyto: "selection",
-                    actionname: this.props.onDropMicroflow,
-                    guids: [ mxObject.getGuid() ]
-                },
-                origin: this.props.mxform,
-                error: (error) => {
-                    mx.ui.error(error.message);
-                }
-            });
-        }
-
-    }
-    private onRemoveNanoflow() {
-        const context = new mendix.lib.MxContext();
-        mx.data.callNanoflow({
-            nanoflow: this.props.onRemoveNanoflow,
-            origin: this.props.mxform,
-            context,
-            error: (error) => {
-                mx.ui.error(error.message);
-            }
-        });
-    }
-
-    private onUploadNanoflow() {
-        const context = new mendix.lib.MxContext();
-        mx.data.callNanoflow({
-            nanoflow: this.props.onUploadNanoflow,
-            origin: this.props.mxform,
-            context,
-            error: (error) => {
-                mx.ui.error(error.message);
-            }
-        });
-    }
-
-    private onDropNanoflow() {
-        const context = new mendix.lib.MxContext();
-        mx.data.callNanoflow({
-            nanoflow: this.props.onDropNanoflow,
-            origin: this.props.mxform,
-            context,
-            error: (error) => {
-                mx.ui.error(error.message);
-            }
-        });
-    }
     private getForm = (node: HTMLElement) => {
-    this.formNode = node;
-}
+        this.formNode = node;
+    }
+
+    private callMicroflow(microflow: string) {
+        if (microflow) {
+            mx.data.action({
+                params: {
+                    applyto: "selection",
+                    actionname: microflow,
+                    guids: [ this.props.mxObject.getGuid() ]
+                },
+                origin: this.props.mxform,
+                error: (microflowError) => {
+                    mx.ui.error(microflowError.message);
+                }
+            });
+        }
+    }
+
+    private callNanoflow(nanoflow: Nanoflow) {
+        if (nanoflow) {
+            const context = new mendix.lib.MxContext();
+            mx.data.callNanoflow({
+                nanoflow,
+                origin: this.props.mxform,
+                context,
+                error: (nanoflowError) => {
+                    mx.ui.error(nanoflowError.message);
+                }
+            });
+        }
+    }
 }

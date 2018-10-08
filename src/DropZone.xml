@@ -55,8 +55,9 @@
             <category>Appearance</category>
             <description>Hide upload button start uploading on drop.</description>
         </property>
-        <property key="onClickEvent" type="enumeration" defaultValue="doNothing">
-            <caption>On click</caption>
+
+        <property key="onDropEvent" type="enumeration" defaultValue="doNothing">
+            <caption>On drop</caption>
             <category>Events</category>
             <description/>
             <enumerationValues>
@@ -65,36 +66,65 @@
                 <enumerationValue key="callNanoflow">Call a nanoflow</enumerationValue>
             </enumerationValues>
         </property>
+        
         <property key="onDropMicroflow" type="microflow" required="false" entityProperty="fileEntity">
-            <caption>On drop</caption>
+            <caption>On drop microflow</caption>
             <category>Events</category>
             <description>Microflow is called when file is dropped.</description>
             <returnType type="Boolean"/>
         </property>
-        <property key="onRemoveMicroflow" type="microflow" required="false" entityProperty="fileEntity">
-            <caption>On remove</caption>
-            <category>Events</category>
-            <description>Microflow is called when an uploaded file is removed.</description>
-            <returnType type="Boolean"/>
-        </property>
-        <property key="onUploadMicroflow" type="microflow" required="false" entityProperty="fileEntity">
-            <caption>On upload</caption>
-            <category>Events</category>
-            <description>Microflow is called when a file is uploaded.</description>
-            <returnType type="Boolean"/>
-        </property>
+
         <property key="onDropNanoflow" type="nanoflow" required="false" entityProperty="fileEntity">
             <caption>On drop nanoflow</caption>
             <category>Events</category>
             <description>Nanoflow is called when file is dropped.</description>
             <returnType type="Boolean"/>
         </property>
-        <property key="onRemoveNanoflow" type="nanoflow" required="false" entityProperty="fileEntity">
+
+
+        <property key="onRemoveEvent" type="enumeration" defaultValue="doNothing">
+            <caption>On remove of a file</caption>
+            <category>Events</category>
+            <description/>
+            <enumerationValues>
+                <enumerationValue key="doNothing">Do nothing</enumerationValue>
+                <enumerationValue key="callMicroflow">Call a microflow</enumerationValue>
+                <enumerationValue key="callNanoflow">Call a nanoflow</enumerationValue>
+            </enumerationValues>
+        </property>
+
+        <property key="onRemoveMicroflow" type="microflow" required="false" entityProperty="fileEntity">
+            <caption>On remove microflow</caption>
+            <category>Events</category>
+            <description>Microflow is called when an uploaded file is removed.</description>
+            <returnType type="Boolean"/>
+        </property>
+
+         <property key="onRemoveNanoflow" type="nanoflow" required="false" entityProperty="fileEntity">
             <caption>On remove nanoflow</caption>
             <category>Events</category>
             <description>Nanoflow is called when an uploaded file is removed.</description>
             <returnType type="Boolean"/>
         </property>
+
+        <property key="onUploadEvent" type="enumeration" defaultValue="doNothing">
+            <caption>On upload of a file</caption>
+            <category>Events</category>
+            <description/>
+            <enumerationValues>
+                <enumerationValue key="doNothing">Do nothing</enumerationValue>
+                <enumerationValue key="callMicroflow">Call a microflow</enumerationValue>
+                <enumerationValue key="callNanoflow">Call a nanoflow</enumerationValue>
+            </enumerationValues>
+        </property>
+
+        <property key="onUploadMicroflow" type="microflow" required="false" entityProperty="fileEntity">
+            <caption>On upload microflow</caption>
+            <category>Events</category>
+            <description>Microflow is called when a file is uploaded.</description>
+            <returnType type="Boolean"/>
+        </property>
+        
         <property key="onUploadNanoflow" type="nanoflow" required="false" entityProperty="fileEntity">
             <caption>On upload nanoflow</caption>
             <category>Events</category>

@@ -27,6 +27,9 @@ export interface DropZoneContainerProps extends WrapperProps {
     onDropNanoflow: Nanoflow;
     onRemoveNanoflow: Nanoflow;
     onUploadNanoflow: Nanoflow;
+    onDropEvent: string;
+    onRemoveEvent: string;
+    onUploadEvent: string;
 }
 
 interface Nanoflow {
@@ -55,7 +58,10 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
             onRemoveNanoflow: this.props.onRemoveNanoflow,
             onDropNanoflow: this.props.onDropNanoflow,
             onUploadNanoflow: this.props.onUploadNanoflow,
-            mxContext: this.props.mxContext
+            mxContext: this.props.mxContext,
+            onDropEvent: this.props.onDropEvent,
+            onRemoveEvent: this.props.onRemoveEvent,
+            onUploadEvent: this.props.onUploadEvent
         });
     }
 
