@@ -23,7 +23,6 @@ interface DropzoneProps {
     onRemoveNanoflow: Nanoflow;
     onUploadNanoflow: Nanoflow;
     mxContext: mendix.lib.MxContext;
-    onClickEvent: "doNothing" | "callMicroflow" | "callNanoflow";
 }
 
 interface Nanoflow {
@@ -257,19 +256,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             generalError: displayMessage
         });
     }
-    // private handleOnclickEvents() {
-    //     const { mxObject, onClickEvent } = this.props;
-    //     if (onClickEvent === "callMicroflow") {
-    //         this.onRemoveMicroflow(mxObject);
-    //         this.onDropMicroflow(mxObject);
-    //         this.onUploadMicroflow(mxObject);
-    //     } else if (onClickEvent === "callNanoflow") {
-    //             this.onUpLoadNanoflow();
-    //             this.onDropNanoflow();
-    //             this.onRemoveNanoflow();
-    //         }
-    //     }
-    // }
     private onRemoveMicroflow(mxObject: mendix.lib.MxObject) {
         if (this.props.onRemoveMicroflow) {
             mx.data.action({
