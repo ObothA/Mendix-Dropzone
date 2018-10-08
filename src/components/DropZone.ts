@@ -15,6 +15,10 @@ interface DropzoneProps {
     autoUpload: string;
     thumbnailWidth: number;
     thumbnailHeight: number;
+    onDropMicroflow: string;
+    onRemoveMicroflow: string;
+    onUploadMicroflow: string;
+    mxform: mxui.lib.form._FormBase;
 }
 
 interface DropzoneState {
@@ -106,6 +110,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         }
 
         myDropzone.on("removedfile", (file) => { this.handleRemovedFile(file); });
+        myDropzone.on("drop", () => { this.onDropMicroflow(this.props.mxObject); });
 
         return myDropzone;
     }
@@ -158,24 +163,19 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             const indexOfFile = this.dropzoneObject.files.indexOf(file);
             this.arrayOfFiles.splice(indexOfFile, 1);
         }
-
         if (typeof file.status.split("?guid=")[1] === "string") {
             mx.data.remove({
                 guid: file.status.split("?guid=")[1],
                 callback: () => {
                     this.numberOfFilesAdded--;
-                    /* clear errors */
-                    this.setState({
-                        maxFileSizeError: "",
-                        fileTypeError: "",
-                        generalError: "",
-                        maxFilesNumberError: ""
-                    });
+                    this.onRemoveMicroflow(this.props.mxObject);
                 },
                 error: (removeFileError) => {
                     window.logger.error(`Error attempting to remove mendix object ${removeFileError}`);
                 }
             });
+        } else {
+            this.onRemoveMicroflow(this.props.mxObject);
         }
     }
 
@@ -191,8 +191,8 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                         this.upload(file);
                     }
                 } else if (!this.props.autoUpload) {
-                     /* Perform validation */
-                     if (this.customErrorHandler(file)) {
+                    /* Perform validation */
+                    if (this.customErrorHandler(file)) {
                         this.arrayOfFiles.splice(0, 1);
                     } else {
                         this.upload(file);
@@ -224,6 +224,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                             this.dropzoneObject.emit("uploadprogress", file, 50);
                             this.dropzoneObject.emit("complete", file);
                             this.dropzoneObject.emit("success", file);
+                            this.onUploadMicroflow(this.props.mxObject);
                         },
                         saveDocumentError => window.logger.error(saveDocumentError)
                     );
@@ -244,6 +245,54 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         this.setState({
             generalError: displayMessage
         });
+    }
+    private onRemoveMicroflow(mxObject: mendix.lib.MxObject) {
+        if (this.props.onRemoveMicroflow) {
+            mx.data.action({
+                params: {
+                    applyto: "selection",
+                    actionname: this.props.onRemoveMicroflow,
+                    guids: [mxObject.getGuid()]
+                },
+                origin: this.props.mxform,
+                error: (error) => {
+                    mx.ui.error(error.message);
+                }
+            });
+        }
+
+    }
+    private onUploadMicroflow(mxObject: mendix.lib.MxObject) {
+        if (this.props.onUploadMicroflow) {
+            mx.data.action({
+                params: {
+                    applyto: "selection",
+                    actionname: this.props.onUploadMicroflow,
+                    guids: [mxObject.getGuid()]
+                },
+                origin: this.props.mxform,
+                error: (error) => {
+                    mx.ui.error(error.message);
+                }
+            });
+        }
+
+    }
+    private onDropMicroflow(mxObject: mendix.lib.MxObject) {
+        if (this.props.onDropMicroflow) {
+            mx.data.action({
+                params: {
+                    applyto: "selection",
+                    actionname: this.props.onDropMicroflow,
+                    guids: [mxObject.getGuid()]
+                },
+                origin: this.props.mxform,
+                error: (error) => {
+                    mx.ui.error(error.message);
+                }
+            });
+        }
+
     }
 
     private getForm = (node: HTMLElement) => {

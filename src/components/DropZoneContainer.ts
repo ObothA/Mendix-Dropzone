@@ -4,7 +4,7 @@ import Dropzone from "./DropZone";
 export interface WrapperProps {
     class?: string;
     mxObject: mendix.lib.MxObject;
-    mxform?: mxui.lib.form._FormBase;
+    mxform: mxui.lib.form._FormBase;
     style?: string;
     readOnly?: boolean;
     friendlyId?: string;
@@ -20,6 +20,9 @@ export interface DropZoneContainerProps extends WrapperProps {
     autoUpload: string;
     thumbnailWidth: number;
     thumbnailHeight: number;
+    onDropMicroflow: string;
+    onRemoveMicroflow: string;
+    onUploadMicroflow: string;
 }
 
 export default class DropZoneContainer extends Component<DropZoneContainerProps, {} > {
@@ -35,7 +38,11 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
             fileTypes: this.props.fileTypes,
             autoUpload: this.props.autoUpload,
             thumbnailHeight: this.props.thumbnailHeight,
-            thumbnailWidth: this.props.thumbnailWidth
+            thumbnailWidth: this.props.thumbnailWidth,
+            onDropMicroflow: this.props.onDropMicroflow,
+            onRemoveMicroflow: this.props.onRemoveMicroflow,
+            onUploadMicroflow: this.props.onUploadMicroflow,
+            mxform: this.props.mxform
         });
     }
 
