@@ -154,6 +154,11 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     /* handle remove file */
     private handleRemovedFile = (file: DropzoneLib.DropzoneFile) => {
+        if (this.arrayOfFiles.length) {
+            const indexOfFile = this.dropzoneObject.files.indexOf(file);
+            this.arrayOfFiles.splice(indexOfFile, 1);
+        }
+
         if (typeof file.status.split("?guid=")[1] === "string") {
             mx.data.remove({
                 guid: file.status.split("?guid=")[1],
@@ -166,7 +171,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                         generalError: "",
                         maxFilesNumberError: ""
                     });
-                    window.logger.info("mendix object removed");
                 },
                 error: (removeFileError) => {
                     window.logger.error(`Error attempting to remove mendix object ${removeFileError}`);
