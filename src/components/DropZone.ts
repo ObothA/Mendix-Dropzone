@@ -70,24 +70,18 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     }
 
     private renderDropzone = () => {
-        if (this.props.autoUpload) {
             return createElement("div", { className: "dropzoneContainer" },
+                this.props.autoUpload ? "" : createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton", onClick: this.handleUploud }),
                 createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getForm }),
-                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.maxFileSizeError),
-                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileTypeError),
-                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.generalError),
-                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.maxFilesNumberError)
+                this.alert(this.state.maxFileSizeError),
+                this.alert(this.state.fileTypeError),
+                this.alert(this.state.generalError),
+                this.alert(this.state.maxFilesNumberError)
             );
-        } else {
-            return createElement("div", { className: "dropzoneContainer" },
-                createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton", onClick: this.handleUploud }),
-                createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getForm }),
-                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.maxFileSizeError),
-                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileTypeError),
-                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.generalError),
-                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.maxFilesNumberError)
-            );
-        }
+    }
+
+    private alert(validationError: string) {
+        return createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, validationError);
     }
 
     private setupDropZone() {
@@ -122,19 +116,21 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         }
 
         myDropzone.on("removedfile", (file) => { this.handleRemovedFile(file); });
-        myDropzone.on("drop", () => {
-            /* deal with on drop events */
-            if (this.props.onDropEvent !== "doNothing") {
-                if (this.props.onDropEvent === "callMicroflow") {
-                    this.callMicroflow(this.props.onDropMicroflow);
-                } else {
-                    this.callNanoflow(this.props.onDropNanoflow);
-                }
-            }
-         });
+        myDropzone.on("drop", this.handleOnDropEvent);
 
         return myDropzone;
     }
+
+    private handleOnDropEvent = () => {
+        /* deal with on drop events */
+        if (this.props.onDropEvent !== "doNothing") {
+            if (this.props.onDropEvent === "callMicroflow") {
+                this.callMicroflow(this.props.onDropMicroflow);
+            } else {
+                this.callNanoflow(this.props.onDropNanoflow);
+            }
+        }
+     }
 
     private customErrorHandler = (file: DropzoneLib.DropzoneFile) => {
         const fileExtension = file.name.split(".").pop();
