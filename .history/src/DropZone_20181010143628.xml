@@ -70,14 +70,14 @@
         <property key="onDropMicroflow" type="microflow" required="false" entityProperty="fileEntity">
             <caption>On drop microflow</caption>
             <category>Events</category>
-            <description>Microflow that will be executed when a file is dropped</description>
+            <description>Microflow that will be executed when an uploaded file is removed</description>
             <returnType type="Boolean"/>
         </property>
 
         <property key="onDropNanoflow" type="nanoflow" required="false" entityProperty="fileEntity">
             <caption>On drop nanoflow</caption>
             <category>Events</category>
-            <description>Nanoflow that will be executed when a file is dropped</description>
+            <description>Nanoflow that will be executed when an uploaded file is dropped</description>
             <returnType type="Boolean"/>
         </property>
 
@@ -96,7 +96,7 @@
         <property key="onRemoveMicroflow" type="microflow" required="false" entityProperty="fileEntity">
             <caption>On remove microflow</caption>
             <category>Events</category>
-            <description>Microflow that will be executed when an uploaded file is removed</description>
+            <description>Microflow that will be executed when a file is removed</description>
             <returnType type="Boolean"/>
         </property>
 
@@ -128,7 +128,7 @@
         <property key="onUploadNanoflow" type="nanoflow" required="false" entityProperty="fileEntity">
             <caption>On upload nanoflow</caption>
             <category>Events</category>
-            <description>Nanoflow that will be executed when a file is uploaded</description>
+            <description>Nanoflow that will be executed when an uploaded file is uploaded</description>
             <returnType type="Boolean"/>
         </property>
 
