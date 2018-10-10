@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "drags and drop app",
   "copyright": "Joseph",
-  "author": "Joseph",
+  "author": "Oboth Abel & Otim Wendell",
   "scripts": {
     "start": "nodemon --watch webpack.config.js --watch Gruntfile.js --exec \"grunt",
     "start:dev": "webpack-dev-server --open",
