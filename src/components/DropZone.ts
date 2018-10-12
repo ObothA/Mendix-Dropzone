@@ -72,7 +72,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private renderDropzone = () => {
             return createElement("div", { className: "dropzoneContainer" },
                 this.props.autoUpload ? "" : createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton", onClick: this.handleUploud }),
-                createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getForm }),
+                createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getFormNode }),
                 this.alert(this.state.maxFileSizeError),
                 this.alert(this.state.fileTypeError),
                 this.alert(this.state.generalError),
@@ -124,11 +124,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private handleOnDropEvent = () => {
         /* deal with on drop events */
         if (this.props.onDropEvent !== "doNothing") {
-            if (this.props.onDropEvent === "callMicroflow") {
-                this.callMicroflow(this.props.onDropMicroflow);
-            } else {
-                this.callNanoflow(this.props.onDropNanoflow);
-            }
+            this.executeAction(this.props.onDropMicroflow, this.props.onDropNanoflow);
         }
      }
 
@@ -187,25 +183,17 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                     this.numberOfFilesAdded--;
                     /* deal with on remove events */
                     if (this.props.onRemoveEvent !== "doNothing") {
-                        if (this.props.onRemoveEvent === "callMicroflow") {
-                            this.callMicroflow(this.props.onRemoveMicroflow);
-                        } else {
-                            this.callNanoflow(this.props.onRemoveNanoflow);
-                        }
+                        this.executeAction(this.props.onRemoveMicroflow, this.props.onRemoveNanoflow);
                     }
                 },
-                error: (removeFileError) => {
-                    window.logger.error(`Error attempting to remove mendix object ${removeFileError}`);
+                error: error => {
+                    mx.ui.error(`Error attempting to remove dropzone item  ${error}`);
                 }
             });
         } else {
             /* deal with on remove events */
             if (this.props.onRemoveEvent !== "doNothing") {
-                if (this.props.onRemoveEvent === "callMicroflow") {
-                    this.callMicroflow(this.props.onRemoveMicroflow);
-                } else {
-                    this.callNanoflow(this.props.onRemoveNanoflow);
-                }
+                this.executeAction(this.props.onRemoveMicroflow, this.props.onRemoveNanoflow);
             }
         }
     }
@@ -257,11 +245,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                             this.dropzoneObject.emit("success", file);
                              /* deal with on upload events */
                             if (this.props.onUploadEvent !== "doNothing") {
-                                if (this.props.onUploadEvent === "callMicroflow") {
-                                    this.callMicroflow(this.props.onUploadMicroflow);
-                                } else {
-                                    this.callNanoflow(this.props.onUploadNanoflow);
-                                }
+                                this.executeAction(this.props.onUploadMicroflow, this.props.onUploadNanoflow);
                             }
                         },
                         saveDocumentError => window.logger.error(saveDocumentError)
@@ -284,12 +268,11 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         });
     }
 
-    private getForm = (node: HTMLElement) => {
+    private getFormNode = (node: HTMLElement) => {
         this.formNode = node;
     }
-
-    private callMicroflow(microflow: string) {
-        if (microflow) {
+    private executeAction(microflow: string, nanoflow: Nanoflow) {
+        if (this.props.onDropMicroflow || this.props.onRemoveMicroflow || this.props.onUploadMicroflow) {
             mx.data.action({
                 params: {
                     applyto: "selection",
@@ -297,24 +280,17 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                     guids: [ this.props.mxObject.getGuid() ]
                 },
                 origin: this.props.mxform,
-                error: (microflowError) => {
-                    mx.ui.error(microflowError.message);
-                }
+                error: microflowError => mx.ui.error(`error while executing action ${microflowError.message}`)
             });
-        }
-    }
 
-    private callNanoflow(nanoflow: Nanoflow) {
-        if (nanoflow) {
+        } else if (this.props.onDropNanoflow || this.props.onRemoveNanoflow || this.props.onUploadNanoflow) {
             const context = new mendix.lib.MxContext();
             mx.data.callNanoflow({
                 nanoflow,
                 origin: this.props.mxform,
                 context,
-                error: (nanoflowError) => {
-                    mx.ui.error(nanoflowError.message);
-                }
+                error: nanoflowError => mx.ui.error(`error while executing action ${nanoflowError.message}`)
             });
         }
+        }
     }
-}
