@@ -6,3 +6,7 @@
 .uploadButton {
   margin-bottom: 0.3%;
 }
+
+.alert-danger{
+    margin-top: 0.45% !important;
+}
