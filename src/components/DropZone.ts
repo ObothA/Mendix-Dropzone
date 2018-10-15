@@ -34,10 +34,7 @@ interface Nanoflow {
 }
 
 interface DropzoneState {
-    maxFileSizeError: string;
-    fileTypeError: string;
-    generalError: string;
-    maxFilesNumberError: string;
+    fileError: string;
 
 }
 
@@ -51,10 +48,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private numberOfFilesAdded = 1;
 
     readonly state: DropzoneState = {
-        maxFileSizeError: "",
-        fileTypeError: "",
-        generalError: "",
-        maxFilesNumberError: ""
+        fileError: ""
     };
 
     render() {
@@ -73,16 +67,13 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             return createElement("div", { className: "dropzoneContainer" },
                 this.props.autoUpload ? "" : createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton", onClick: this.handleUploud }),
                 createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getFormNode }),
-                this.alert(this.state.maxFileSizeError),
-                this.alert(this.state.fileTypeError),
-                this.alert(this.state.generalError),
-                this.alert(this.state.maxFilesNumberError)
+                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileError)
             );
     }
 
-    private alert(validationError: string) {
-        return createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, validationError);
-    }
+    // private alert(validationError: string) {
+    //     return createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, validationError);
+    // }
 
     private setupDropZone() {
         if (this.props.contextAssociation && typeof this.props.contextAssociation.split("/")[0] === "string") {
@@ -124,7 +115,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private handleOnDropEvent = () => {
         /* deal with on drop events */
         if (this.props.onDropEvent !== "doNothing") {
-            this.executeAction(this.props.onDropMicroflow, this.props.onDropNanoflow);
+            this.executeAction(this.props.onDropEvent, this.props.onDropMicroflow, this.props.onDropNanoflow);
         }
      }
 
@@ -133,9 +124,9 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         /* File size limit in bytes */
         const sizeLimit = this.props.maxFileSize * (2 ** 20);
         if (file.size > sizeLimit) {
-            const displayMessage = `${file.name} wont be uploaded, file too big, limit is ${this.props.maxFileSize} MB(s)`;
+            const displayMessage = `${file.name} wont be uploaded, file too big, limit is ${this.props.maxFileSize} MB(s)\n`;
             this.setState({
-                maxFileSizeError: displayMessage
+                fileError: `${this.state.fileError} ${displayMessage}`
             });
 
             if (this.dropzoneObject) {
@@ -143,9 +134,9 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             }
             return true;
         } else if (this.numberOfFilesAdded > this.maxFiles) {
-            const displayMessage = `${file.name} wont be uploaded, exceded limit of ${this.maxFiles} files`;
+            const displayMessage = `${file.name} wont be uploaded, exceded limit of ${this.maxFiles} files\n`;
             this.setState({
-                maxFilesNumberError: displayMessage
+                fileError: `${this.state.fileError} ${displayMessage}`
             });
 
             if (this.dropzoneObject) {
@@ -155,9 +146,9 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         } else if (this.props.fileTypes && fileExtension && !this.props.fileTypes.includes(fileExtension)) {
             /* file type error */
             /* Check if file type prop is set, file extesion is set and if the extension is on our list */
-            const displayMessage = `${file.name} wont be uploaded, file type not support for upload`;
+            const displayMessage = `${file.name} wont be uploaded, file type not support for upload\n`;
             this.setState({
-                fileTypeError: displayMessage
+                fileError: `${this.state.fileError} ${displayMessage}`
             });
 
             if (this.dropzoneObject) {
@@ -183,7 +174,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                     this.numberOfFilesAdded--;
                     /* deal with on remove events */
                     if (this.props.onRemoveEvent !== "doNothing") {
-                        this.executeAction(this.props.onRemoveMicroflow, this.props.onRemoveNanoflow);
+                        this.executeAction(this.props.onRemoveEvent, this.props.onRemoveMicroflow, this.props.onRemoveNanoflow);
                     }
                 },
                 error: error => {
@@ -193,7 +184,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         } else {
             /* deal with on remove events */
             if (this.props.onRemoveEvent !== "doNothing") {
-                this.executeAction(this.props.onRemoveMicroflow, this.props.onRemoveNanoflow);
+                this.executeAction(this.props.onRemoveEvent, this.props.onRemoveMicroflow, this.props.onRemoveNanoflow);
             }
         }
     }
@@ -245,52 +236,54 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                             this.dropzoneObject.emit("success", file);
                              /* deal with on upload events */
                             if (this.props.onUploadEvent !== "doNothing") {
-                                this.executeAction(this.props.onUploadMicroflow, this.props.onUploadNanoflow);
+                                this.executeAction(this.props.onUploadEvent, this.props.onUploadMicroflow, this.props.onUploadNanoflow);
                             }
                         },
-                        saveDocumentError => window.logger.error(saveDocumentError)
+                        saveDocumentError => mx.ui.error(`${saveDocumentError}`)
                     );
                 }
             },
             error: (createMxObjectError) => {
-                window.logger.error("Could not commit object:", createMxObjectError);
+                mx.ui.error(`Could not commit object:, ${createMxObjectError}`);
             }
         });
     }
 
     private handleErrorsFromLibrary = (file: DropzoneLib.DropzoneFile, message: string) => {
-        const displayMessage = `${file.name} wont be uploaded, ${message}`;
+        const displayMessage = `${file.name} wont be uploaded, ${message}\n`;
         if (this.dropzoneObject) {
             this.dropzoneObject.removeFile(file);
         }
         this.setState({
-            generalError: displayMessage
+            fileError: `${this.state.fileError} ${displayMessage}`
         });
     }
 
     private getFormNode = (node: HTMLElement) => {
         this.formNode = node;
     }
-    private executeAction(microflow: string, nanoflow: Nanoflow) {
-        if (this.props.onDropMicroflow || this.props.onRemoveMicroflow || this.props.onUploadMicroflow) {
+    private executeAction(event: string, microflow?: string, nanoflow?: Nanoflow) {
+        const { mxObject, mxform } = this.props;
+
+        if (event === "callMicroflow" && microflow) {
             mx.data.action({
                 params: {
                     applyto: "selection",
                     actionname: microflow,
-                    guids: [ this.props.mxObject.getGuid() ]
+                    guids: [ mxObject.getGuid() ]
                 },
-                origin: this.props.mxform,
-                error: microflowError => mx.ui.error(`error while executing action ${microflowError.message}`)
+                origin: mxform,
+                error: error => mx.ui.error(`error while executing action ${microflow} ${error.message}`)
             });
 
-        } else if (this.props.onDropNanoflow || this.props.onRemoveNanoflow || this.props.onUploadNanoflow) {
+        } else if (event === "callNanoflow" && nanoflow && nanoflow.nanoflow) {
             const context = new mendix.lib.MxContext();
             mx.data.callNanoflow({
                 nanoflow,
-                origin: this.props.mxform,
+                origin: mxform,
                 context,
-                error: nanoflowError => mx.ui.error(`error while executing action ${nanoflowError.message}`)
+                error: error => mx.ui.error(`error while executing action nanoflow ${error.message}`)
             });
         }
-        }
     }
+}
