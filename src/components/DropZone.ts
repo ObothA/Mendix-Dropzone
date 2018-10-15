@@ -65,7 +65,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     private renderDropzone = () => {
             return createElement("div", { className: "dropzoneContainer" },
-                this.props.autoUpload ? "" : createElement("input", { type: "button", value: "upload file(s)", className: "uploadButton", onClick: this.handleUploud }),
+                this.props.autoUpload ? "" : createElement("button", {  className: "btn mx-button uploadButton", onClick: this.handleUploud }, "upload file(s)"),
                 createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getFormNode }),
                 createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileError)
             );

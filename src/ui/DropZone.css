@@ -10,3 +10,6 @@
 .alert-danger{
     margin-top: 0.45% !important;
 }
+.btn, .mx-button{
+    margin-bottom: 0.70% !important ;
+}
