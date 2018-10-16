@@ -245,20 +245,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                     /* emit progress initial stage */
                     this.dropzoneObject.emit("uploadprogress", file, 0);
                     mx.data.saveDocument(newFileObject.getGuid(), file.name, {}, file,
-                        () => {
-                            /* Remove file from array after upload */
-                            const indexOfFile = this.dropzoneObject.files.indexOf(file);
-                            const newFileStatus = `${this.dropzoneObject.files[indexOfFile].status}?guid=${newFileObject.getGuid()}`;
-                            this.dropzoneObject.files[indexOfFile].status = newFileStatus;
-                            this.arrayOfFiles.splice(0, 1);
-                            this.dropzoneObject.emit("uploadprogress", file, 50);
-                            this.dropzoneObject.emit("complete", file);
-                            this.dropzoneObject.emit("success", file);
-                             /* deal with on upload events */
-                            if (this.props.onUploadEvent !== "doNothing") {
-                                this.executeAction(this.props.onUploadEvent, this.props.onUploadMicroflow, this.props.onUploadNanoflow);
-                            }
-                        },
+                        () => { this.saveFile(file, newFileObject); },
                         saveDocumentError => mx.ui.error(`${saveDocumentError}`)
                     );
                 }
@@ -267,6 +254,21 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                 mx.ui.error(`Could not commit object:, ${createMxObjectError}`);
             }
         });
+    }
+
+    private saveFile(file: DropzoneLib.DropzoneFile, newFileObject: mendix.lib.MxObject) {
+        /* Remove file from array after upload */
+        const indexOfFile = this.dropzoneObject.files.indexOf(file);
+        const newFileStatus = `${this.dropzoneObject.files[indexOfFile].status}?guid=${newFileObject.getGuid()}`;
+        this.dropzoneObject.files[indexOfFile].status = newFileStatus;
+        this.arrayOfFiles.splice(0, 1);
+        this.dropzoneObject.emit("uploadprogress", file, 50);
+        this.dropzoneObject.emit("complete", file);
+        this.dropzoneObject.emit("success", file);
+         /* deal with on upload events */
+        if (this.props.onUploadEvent !== "doNothing") {
+            this.executeAction(this.props.onUploadEvent, this.props.onUploadMicroflow, this.props.onUploadNanoflow);
+        }
     }
 
     private handleErrorsFromLibrary = (file: DropzoneLib.DropzoneFile, message: string) => {
