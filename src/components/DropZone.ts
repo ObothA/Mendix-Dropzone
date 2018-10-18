@@ -28,11 +28,18 @@ interface DropzoneProps {
     onUploadEvent: string;
     reference: string;
     executeAction: (event: string, microflow?: string, nanoflow?: Nanoflow) => void;
+
+    createObject: (fileEntity: string, reference: string, mxObject: mendix.lib.MxObject, dropzoneObject: DropzoneLib, file: DropzoneLib.DropzoneFile, guid: string) => ReturnObject;
 }
 
 interface Nanoflow {
     nanoflow: object[];
     paramsSpec: { Progress: string };
+}
+
+interface ReturnObject {
+    file: DropzoneLib.DropzoneFile;
+    guid: string;
 }
 
 interface DropzoneState {
@@ -219,31 +226,15 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     /* Generic upload function */
     private upload = (file: DropzoneLib.DropzoneFile) => {
-        mx.data.create({
-            entity: this.props.fileEntity,
-            callback: (newFileObject) => {
-                if (newFileObject.isObjectReference(this.props.reference) && this.props.mxObject) {
-                    newFileObject.set(this.props.reference, this.props.mxObject.getGuid());
-                }
-                if (this.dropzoneObject) {
-                    /* emit progress initial stage */
-                    this.dropzoneObject.emit("uploadprogress", file, 0);
-                    mx.data.saveDocument(newFileObject.getGuid(), file.name, {}, file,
-                        () => { this.saveFile(file, newFileObject); },
-                        saveDocumentError => mx.ui.error(`${saveDocumentError}`)
-                    );
-                }
-            },
-            error: (createMxObjectError) => {
-                mx.ui.error(`Could not commit object:, ${createMxObjectError}`);
-            }
-        });
+        const { fileEntity, reference, mxObject } = this.props;
+        const returnedObject = this.props.createObject(fileEntity, reference, mxObject, this.dropzoneObject, file, "");
+        this.saveFile(returnedObject.file, returnedObject.guid);
     }
 
-    private saveFile(file: DropzoneLib.DropzoneFile, newFileObject: mendix.lib.MxObject) {
+    private saveFile(file: DropzoneLib.DropzoneFile, guid: string) {
         /* Remove file from array after upload */
         const indexOfFile = this.dropzoneObject.files.indexOf(file);
-        const newFileStatus = `${this.dropzoneObject.files[indexOfFile].status}?guid=${newFileObject.getGuid()}`;
+        const newFileStatus = `${this.dropzoneObject.files[indexOfFile].status}?guid=${guid}`;
         this.dropzoneObject.files[indexOfFile].status = newFileStatus;
         this.arrayOfFiles.splice(0, 1);
         this.dropzoneObject.emit("uploadprogress", file, 50);

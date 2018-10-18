@@ -1,4 +1,5 @@
 import { Component, createElement } from "react";
+import * as DropzoneLib from "dropzone";
 import Dropzone from "./DropZone";
 
 export interface WrapperProps {
@@ -37,10 +38,16 @@ interface Nanoflow {
     paramsSpec: { Progress: string };
 }
 
+interface ReturnObject {
+    file: DropzoneLib.DropzoneFile;
+    guid: string;
+}
+
 export default class DropZoneContainer extends Component<DropZoneContainerProps, {} > {
     private contextObject!: mendix.lib.MxObject;
     private reference!: string;
     private maxFiles!: number;
+    returnObject!: ReturnObject;
 
     constructor(props: DropZoneContainerProps) {
         super(props);
@@ -77,8 +84,8 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
             onRemoveEvent: this.props.onRemoveEvent,
             onUploadEvent: this.props.onUploadEvent,
             reference: this.reference,
-            executeAction: this.executeAction
-
+            executeAction: this.executeAction,
+            createObject: this.createObject
         });
     }
 
@@ -109,6 +116,32 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
                 error: error => mx.ui.error(`error while executing action nanoflow ${error.message}`)
             });
         }
+    }
+
+    private createObject(fileEntity: string, reference: string, mxObject: mendix.lib.MxObject, dropzoneObject: DropzoneLib, file: DropzoneLib.DropzoneFile, _guid: string) {
+        let guidx = "";
+        mx.data.create({
+            entity: fileEntity,
+            callback: (newFileObject) => {
+                if (newFileObject.isObjectReference(reference) && mxObject) {
+                    newFileObject.set(reference, mxObject.getGuid());
+                }
+                if (dropzoneObject) {
+                    /* emit progress initial stage */
+                    dropzoneObject.emit("uploadprogress", file, 0);
+                    mx.data.saveDocument(newFileObject.getGuid(), file.name, {}, file,
+                        () => {
+                            guidx = newFileObject.getGuid();
+                        },
+                        saveDocumentError => mx.ui.error(`${saveDocumentError}`)
+                    );
+                }
+            },
+            error: (createMxObjectError) => {
+                mx.ui.error(`Could not commit object:, ${createMxObjectError}`);
+            }
+        });
+        return { file, guid: guidx };
     }
     public static parseStyle(style = ""): { [key: string]: string } {
         try {
