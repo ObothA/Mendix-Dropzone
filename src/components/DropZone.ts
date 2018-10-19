@@ -171,7 +171,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             this.arrayOfFiles.map((fileobject) => {
                 if (file === fileobject.file) {
                     mx.data.remove({
-                        guid: file.status.split("?guid=")[1],
+                        guid: fileobject.guid,
                         callback: () => {
                             this.numberOfFilesAdded--;
                             this.arrayOfFiles.splice(this.arrayOfFiles.indexOf(fileobject), 1);
