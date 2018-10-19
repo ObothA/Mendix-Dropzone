@@ -1,6 +1,6 @@
 import { Component, createElement } from "react";
 import * as DropzoneLib from "dropzone";
-import Dropzone from "./DropZone";
+import Dropzone, { ReturnObject } from "./DropZone";
 
 export interface WrapperProps {
     class?: string;
@@ -33,17 +33,16 @@ export interface DropZoneContainerProps extends WrapperProps {
     onUploadEvent: string;
 }
 
-interface Nanoflow {
+export interface Nanoflow {
     nanoflow: object[];
     paramsSpec: { Progress: string };
 }
 
-interface ReturnObject {
-    file: DropzoneLib.DropzoneFile;
-    guid: string;
+interface DropZoneContainerState {
+    fileObject: ReturnObject;
 }
 
-export default class DropZoneContainer extends Component<DropZoneContainerProps, {} > {
+export default class DropZoneContainer extends Component<DropZoneContainerProps, DropZoneContainerState> {
     private contextObject!: mendix.lib.MxObject;
     private reference!: string;
     private maxFiles!: number;
@@ -58,6 +57,13 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
             this.reference = "";
             this.maxFiles = 1;
         }
+
+        this.state = {
+            fileObject: {
+                file: undefined,
+                guid: ""
+            }
+        };
     }
 
     render() {
@@ -85,7 +91,9 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
             onUploadEvent: this.props.onUploadEvent,
             reference: this.reference,
             executeAction: this.executeAction,
-            createObject: this.createObject
+            createObject: this.createObject,
+            fileobject: this.state.fileObject,
+            saveFileToDatabase: this.saveFileToMendix
         });
     }
 
@@ -118,31 +126,38 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
         }
     }
 
-    private createObject(fileEntity: string, reference: string, mxObject: mendix.lib.MxObject, dropzoneObject: DropzoneLib, file: DropzoneLib.DropzoneFile, _guid: string) {
-        let guidx = "";
+    private createObject = (fileEntity: string, reference: string, mxObject: mendix.lib.MxObject, file: DropzoneLib.DropzoneFile) => {
         mx.data.create({
             entity: fileEntity,
             callback: (newFileObject) => {
+                this.me(newFileObject.getGuid(), file);
                 if (newFileObject.isObjectReference(reference) && mxObject) {
                     newFileObject.set(reference, mxObject.getGuid());
-                }
-                if (dropzoneObject) {
-                    /* emit progress initial stage */
-                    dropzoneObject.emit("uploadprogress", file, 0);
-                    mx.data.saveDocument(newFileObject.getGuid(), file.name, {}, file,
-                        () => {
-                            guidx = newFileObject.getGuid();
-                        },
-                        saveDocumentError => mx.ui.error(`${saveDocumentError}`)
-                    );
                 }
             },
             error: (createMxObjectError) => {
                 mx.ui.error(`Could not commit object:, ${createMxObjectError}`);
             }
         });
-        return { file, guid: guidx };
     }
+
+    private me = (guid: string, file: any) => {
+        this.setState({ fileObject: {
+            guid,
+            file
+        }
+        });
+    }
+
+    private saveFileToMendix(guid: string, file: DropzoneLib.DropzoneFile) {
+        mx.data.saveDocument(guid, file.name, {}, file,
+                        () => {
+                            console.log("file successfully saved");
+                        },
+                        saveDocumentError => mx.ui.error(`${saveDocumentError}`)
+                    );
+    }
+
     public static parseStyle(style = ""): { [key: string]: string } {
         try {
             return style.split(";").reduce<{ [key: string]: string }>((styleObject, line) => {
