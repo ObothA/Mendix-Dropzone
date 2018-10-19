@@ -123,6 +123,7 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
         mx.data.create({
             entity: fileEntity,
             callback: (newFileObject) => {
+                guidx = newFileObject.getGuid();
                 if (newFileObject.isObjectReference(reference) && mxObject) {
                     newFileObject.set(reference, mxObject.getGuid());
                 }
