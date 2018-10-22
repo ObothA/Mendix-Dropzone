@@ -47,7 +47,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private dropzoneObject!: DropzoneLib;
     private formNode!: HTMLElement;
     private arrayOfFiles: ReturnObject[] = [];
-    private numberOfFilesAdded = 1;
+    private numberOfFilesAdded = 0;
     private removeErrorDisplay = false;
 
     readonly state: DropzoneState = {
@@ -65,6 +65,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     componentWillReceiveProps(newProps: DropzoneProps) {
         if (newProps.fileobject.file) {
             this.arrayOfFiles.push(newProps.fileobject);
+            this.numberOfFilesAdded++;
         }
         if (this.props.autoUpload) {
             this.handleUploud();
@@ -158,7 +159,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             }
             return true;
         } else {
-            this.numberOfFilesAdded++;
             return false;
         }
     }
