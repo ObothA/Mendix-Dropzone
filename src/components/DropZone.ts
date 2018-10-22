@@ -63,7 +63,9 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     }
 
     componentWillReceiveProps(newProps: DropzoneProps) {
-        this.arrayOfFiles.push(newProps.fileobject);
+        if (newProps.fileobject.file) {
+            this.arrayOfFiles.push(newProps.fileobject);
+        }
         if (this.props.autoUpload) {
             this.handleUploud();
         }
@@ -198,14 +200,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
         if (this.arrayOfFiles.length) {
             this.arrayOfFiles.map((fileobject) => {
-                if (fileobject.file && fileobject.file.status === "added") {
-                    /* Perform validation */
-                    if (this.customErrorHandler(fileobject.file)) {
-                        this.arrayOfFiles.splice(0, 1);
-                    } else {
-                        this.upload(fileobject);
-                    }
-                } else if (!this.props.autoUpload && fileobject.file) {
+                if (fileobject.file) {
                     /* Perform validation */
                     if (this.customErrorHandler(fileobject.file)) {
                         this.arrayOfFiles.splice(0, 1);
