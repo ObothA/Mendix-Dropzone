@@ -224,7 +224,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     private saveFile(file: DropzoneLib.DropzoneFile) {
         /* Remove file from array after upload */
-        this.arrayOfFiles.splice(0, 1);
         this.dropzoneObject.emit("uploadprogress", file, 50);
         this.dropzoneObject.emit("complete", file);
         this.dropzoneObject.emit("success", file);
