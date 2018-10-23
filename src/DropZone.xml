@@ -53,7 +53,7 @@
         <property key="autoUpload" type="boolean" defaultValue="false">
             <caption>Auto Start Upload</caption>
             <category>Appearance</category>
-            <description>Hide upload button start uploading on drop</description>
+            <description>Automatic upload of files when droped</description>
         </property>
 
         <property key="onDropEvent" type="enumeration" defaultValue="doNothing">

@@ -47,6 +47,7 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
     private reference!: string;
     private maxFiles!: number;
     returnObject!: ReturnObject;
+    private subscriptionHandles: number[];
 
     constructor(props: DropZoneContainerProps) {
         super(props);
@@ -64,6 +65,7 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
                 guid: ""
             }
         };
+        this.subscriptionHandles = [];
     }
 
     render() {
@@ -99,6 +101,11 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
 
     componentWillReceiveProps(newProps: DropZoneContainerProps) {
         this.contextObject = newProps.mxObject;
+
+    }
+
+    componentWillUnmount() {
+        this.subscriptionHandles.forEach(window.mx.data.unsubscribe);
     }
 
     private executeAction = (event: string, microflow?: string, nanoflow?: Nanoflow) => {
@@ -133,7 +140,7 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
                 if (newFileObject.isObjectReference(reference) && mxObject) {
                     newFileObject.set(reference, mxObject.getGuid());
                 }
-                this.me(newFileObject.getGuid(), file);
+                this.getValue(newFileObject.getGuid(), file);
             },
             error: (createMxObjectError) => {
                 mx.ui.error(`Could not commit object:, ${createMxObjectError}`);
@@ -141,7 +148,7 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
         });
     }
 
-    private me = (guid: string, file: any) => {
+    private getValue = (guid: string, file: any) => {
         this.setState({ fileObject: {
             guid,
             file
