@@ -44,10 +44,10 @@ interface DropZoneContainerState {
 
 export default class DropZoneContainer extends Component<DropZoneContainerProps, DropZoneContainerState> {
     private contextObject!: mendix.lib.MxObject;
+    private dropzone!: DropzoneLib;
     private reference!: string;
     private maxFiles!: number;
     returnObject!: ReturnObject;
-    private subscriptionHandles: number[];
 
     constructor(props: DropZoneContainerProps) {
         super(props);
@@ -65,7 +65,6 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
                 guid: ""
             }
         };
-        this.subscriptionHandles = [];
     }
 
     render() {
@@ -105,7 +104,9 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
     }
 
     componentWillUnmount() {
-        this.subscriptionHandles.forEach(window.mx.data.unsubscribe);
+        if (this.dropzone) {
+            this.dropzone.destroy();
+        }
     }
 
     private executeAction = (event: string, microflow?: string, nanoflow?: Nanoflow) => {
