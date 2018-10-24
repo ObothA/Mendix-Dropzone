@@ -62,6 +62,12 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         this.dropzone = this.setupDropZone();
     }
 
+    componentWillUnmount() {
+        if (this.dropzone) {
+            this.dropzone.destroy();
+        }
+    }
+
     componentWillReceiveProps(newProps: DropzoneProps) {
         if (newProps.fileobject.file) {
             this.arrayOfFiles.push(newProps.fileobject);
