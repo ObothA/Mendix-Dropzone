@@ -137,20 +137,12 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             this.setState({
                 fileError: `${this.state.fileError} ${displayMessage}`
             });
-
-            if (this.dropzone) {
-                this.dropzone.removeFile(file);
-            }
             return true;
         } else if (this.numberOfFilesAdded > this.props.maxFiles) {
             const displayMessage = `${file.name} wont be uploaded, exceded limit of ${this.props.maxFiles} files\n`;
             this.setState({
                 fileError: `${this.state.fileError} ${displayMessage}`
             });
-
-            if (this.dropzone) {
-                this.dropzone.removeFile(file);
-            }
             return true;
         } else if (this.props.fileTypes && fileExtension && !this.props.fileTypes.includes(fileExtension)) {
             /* file type error */
@@ -159,10 +151,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             this.setState({
                 fileError: `${this.state.fileError} ${displayMessage}`
             });
-
-            if (this.dropzone) {
-                this.dropzone.removeFile(file);
-            }
             return true;
         } else {
             return false;
@@ -178,11 +166,11 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         if (this.arrayOfFiles.length) {
             this.arrayOfFiles.map((fileobject) => {
                 if (file === fileobject.file) {
+                    this.numberOfFilesAdded--;
+                    this.arrayOfFiles.splice(this.arrayOfFiles.indexOf(fileobject), 1);
                     mx.data.remove({
                         guid: fileobject.guid,
                         callback: () => {
-                            this.numberOfFilesAdded--;
-                            this.arrayOfFiles.splice(this.arrayOfFiles.indexOf(fileobject), 1);
                             /* deal with on remove events */
                             if (this.props.onRemoveEvent !== "doNothing") {
                                 this.props.executeAction(this.props.onRemoveEvent, this.props.onRemoveMicroflow, this.props.onRemoveNanoflow);
@@ -209,7 +197,10 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                 if (fileobject.file) {
                     /* Perform validation */
                     if (this.customErrorHandler(fileobject.file)) {
-                        this.arrayOfFiles.splice(0, 1);
+                        // this.arrayOfFiles.splice(0, 1);
+                        if (this.dropzone) {
+                            this.dropzone.removeFile(fileobject.file);
+                        }
                     } else {
                         this.upload(fileobject);
                     }
