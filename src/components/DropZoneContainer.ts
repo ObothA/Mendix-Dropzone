@@ -70,7 +70,6 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
     render() {
         return createElement(Dropzone, {
             message: this.props.message,
-            fileEntity: this.props.fileEntity,
             contextAssociation: this.props.contextAssociation,
             mxObject: this.contextObject,
             maxFileSize: this.props.maxFileSize,
@@ -134,9 +133,9 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
         }
     }
 
-    private createObject = (fileEntity: string, reference: string, mxObject: mendix.lib.MxObject, file: DropzoneLib.DropzoneFile) => {
+    private createObject = (reference: string, mxObject: mendix.lib.MxObject, file: DropzoneLib.DropzoneFile) => {
         mx.data.create({
-            entity: fileEntity,
+            entity: this.props.fileEntity,
             callback: (newFileObject) => {
                 if (newFileObject.isObjectReference(reference) && mxObject) {
                     newFileObject.set(reference, mxObject.getGuid());

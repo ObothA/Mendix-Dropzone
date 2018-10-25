@@ -7,7 +7,6 @@ import { Nanoflow } from "./DropZoneContainer";
 
 interface DropzoneProps {
     message: string;
-    fileEntity: string;
     contextAssociation: string;
     mxObject: mendix.lib.MxObject;
     maxFileSize: number;
@@ -30,7 +29,7 @@ interface DropzoneProps {
     reference: string;
     fileobject: ReturnObject;
     executeAction: (event: string, microflow?: string, nanoflow?: Nanoflow) => void;
-    createObject: (fileEntity: string, reference: string, mxObject: mendix.lib.MxObject, file: DropzoneLib.DropzoneFile) => void;
+    createObject: (reference: string, mxObject: mendix.lib.MxObject, file: DropzoneLib.DropzoneFile) => void;
     saveFileToDatabase: (guid: string, file: DropzoneLib.DropzoneFile) => void;
 }
 
@@ -97,8 +96,8 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
         myDropzone.on("addedfile", (file) => {
                 this.enableRemoveError();
-                const { fileEntity, reference, mxObject } = this.props;
-                this.props.createObject(fileEntity, reference, mxObject, file);
+                const { reference, mxObject } = this.props;
+                this.props.createObject(reference, mxObject, file);
             });
 
         myDropzone.on("removedfile", (file) => { this.handleRemovedFile(file); });
