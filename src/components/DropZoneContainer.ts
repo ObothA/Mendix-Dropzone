@@ -25,17 +25,12 @@ export interface DropZoneContainerProps extends WrapperProps {
     onDropMicroflow: string;
     onRemoveMicroflow: string;
     onUploadMicroflow: string;
-    onDropNanoflow: Nanoflow;
-    onRemoveNanoflow: Nanoflow;
-    onUploadNanoflow: Nanoflow;
+    onDropNanoflow: mx.Nanoflow;
+    onRemoveNanoflow: mx.Nanoflow;
+    onUploadNanoflow: mx.Nanoflow;
     onDropEvent: string;
     onRemoveEvent: string;
     onUploadEvent: string;
-}
-
-export interface Nanoflow {
-    nanoflow: object[];
-    paramsSpec: { Progress: string };
 }
 
 interface DropZoneContainerState {
@@ -69,27 +64,12 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
     render() {
         return createElement(Dropzone, {
             message: this.props.message,
-            fileEntity: this.props.fileEntity,
-            contextAssociation: this.props.contextAssociation,
-            mxObject: this.contextObject,
             maxFileSize: this.props.maxFileSize,
             maxFiles: this.maxFiles,
             fileTypes: this.props.fileTypes,
             autoUpload: this.props.autoUpload,
             thumbnailHeight: this.props.thumbnailHeight,
             thumbnailWidth: this.props.thumbnailWidth,
-            onDropMicroflow: this.props.onDropMicroflow,
-            onRemoveMicroflow: this.props.onRemoveMicroflow,
-            onUploadMicroflow: this.props.onUploadMicroflow,
-            mxform: this.props.mxform,
-            onRemoveNanoflow: this.props.onRemoveNanoflow,
-            onDropNanoflow: this.props.onDropNanoflow,
-            onUploadNanoflow: this.props.onUploadNanoflow,
-            mxContext: this.props.mxContext,
-            onDropEvent: this.props.onDropEvent,
-            onRemoveEvent: this.props.onRemoveEvent,
-            onUploadEvent: this.props.onUploadEvent,
-            reference: this.reference,
             executeAction: this.executeAction,
             createObject: this.createObject,
             fileobject: this.state.fileObject,
@@ -101,21 +81,47 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
         this.contextObject = newProps.mxObject;
     }
 
-    private executeAction = (event: string, microflow?: string, nanoflow?: Nanoflow) => {
-        const { mxObject, mxform } = this.props;
+    private executeAction = (event: string) => {
+        const { mxform } = this.props;
+        let microflow = "";
+        let nanoflow: mx.Nanoflow | null = null;
 
-        if (event === "callMicroflow" && microflow) {
+        if (event === "onDrop" && this.props.onDropEvent === "callMicroflow") {
+            microflow = this.props.onDropMicroflow;
+        }
+
+        if (event === "onDrop" && this.props.onDropEvent === "callNanoflow") {
+            nanoflow = this.props.onDropNanoflow;
+        }
+
+        if (event === "onRemove" && this.props.onRemoveEvent === "callMicroflow") {
+            microflow = this.props.onRemoveMicroflow;
+        }
+
+        if (event === "onRemove" && this.props.onRemoveEvent === "callNanoflow") {
+            nanoflow = this.props.onRemoveNanoflow;
+        }
+
+        if (event === "onUpload" && this.props.onUploadEvent === "callMicroflow") {
+            microflow = this.props.onUploadMicroflow;
+        }
+
+        if (event === "onUpload" && this.props.onUploadEvent === "callNanoflow") {
+            nanoflow = this.props.onUploadNanoflow;
+        }
+
+        if (microflow) {
             mx.data.action({
                 params: {
                     applyto: "selection",
                     actionname: microflow,
-                    guids: [ mxObject.getGuid() ]
+                    guids: [ this.contextObject.getGuid() ]
                 },
                 origin: mxform,
                 error: error => mx.ui.error(`error while executing action ${microflow} ${error.message}`)
             });
 
-        } else if (event === "callNanoflow" && nanoflow && nanoflow.nanoflow) {
+        } else if (nanoflow) {
             const context = new mendix.lib.MxContext();
             mx.data.callNanoflow({
                 nanoflow,
@@ -126,12 +132,12 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
         }
     }
 
-    private createObject = (fileEntity: string, reference: string, mxObject: mendix.lib.MxObject, file: DropzoneLib.DropzoneFile) => {
+    private createObject = (file: DropzoneLib.DropzoneFile) => {
         mx.data.create({
-            entity: fileEntity,
+            entity: this.props.fileEntity,
             callback: (newFileObject) => {
-                if (newFileObject.isObjectReference(reference) && mxObject) {
-                    newFileObject.set(reference, mxObject.getGuid());
+                if (newFileObject.isObjectReference(this.reference) && this.contextObject) {
+                    newFileObject.set(this.reference, this.contextObject.getGuid());
                 }
                 this.getValue(newFileObject.getGuid(), file);
             },
