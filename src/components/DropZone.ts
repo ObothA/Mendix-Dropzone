@@ -15,12 +15,13 @@ export interface DropzoneProps {
     fileobject: ReturnObject;
     executeAction?: (event: string) => void;
     createObject: (file: DropzoneLib.DropzoneFile) => void;
-    saveFileToDatabase: (guid: string, file: DropzoneLib.DropzoneFile) => void;
+    saveFileToDatabase: (guid: string, file: DropzoneLib.DropzoneFile, dropzone: DropzoneLib) => void;
 }
 
 export interface ReturnObject {
     file?: DropzoneLib.DropzoneFile;
     guid: string;
+    status: "pending" | "uploaded";
 }
 
 interface DropzoneState {
@@ -33,6 +34,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private arrayOfFiles: ReturnObject[] = [];
     private numberOfFilesAdded = 0;
     private fileRemover = "user";
+    private lastAddedTime = new Date().getSeconds();
 
     readonly state: DropzoneState = {
         fileError: ""
@@ -56,18 +58,18 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         if (newProps.fileobject.file) {
             this.arrayOfFiles.push(newProps.fileobject);
             this.numberOfFilesAdded++;
-        }
-        if (this.props.autoUpload) {
-            this.handleUploud();
+            if (this.props.autoUpload) {
+                this.handleUploud();
+            }
         }
     }
 
     private renderDropzone = () => {
-            return createElement("div", { className: "dropzoneContainer" },
-                this.props.autoUpload ? "" : createElement("button", {  className: "btn mx-button uploadButton", onClick: this.handleUploud }, "upload file(s)"),
-                createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getFormNode }),
-                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileError)
-            );
+        return createElement("div", { className: "dropzoneContainer" },
+            this.props.autoUpload ? "" : createElement("button", { className: "btn mx-button uploadButton", onClick: this.handleUploud }, "upload file(s)"),
+            createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getFormNode }),
+            createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileError)
+        );
     }
 
     private setupDropZone() {
@@ -85,15 +87,24 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
         myDropzone.on("error", this.handleErrorsFromLibrary);
 
-        myDropzone.on("addedfile", (file) => {
-                // deal with clearing error using epoch
-                this.props.createObject(file);
-            });
+        myDropzone.on("addedfile", (file) => { this.handleAddedFile(file); });
 
         myDropzone.on("removedfile", (file) => { this.handleRemovedFile(file); });
         myDropzone.on("drop", this.handleOnDropEvent);
 
         return myDropzone;
+    }
+
+    private handleAddedFile(file: DropzoneLib.DropzoneFile) {
+        // deal with clearing error using epoch
+        const currentTime = new Date().getSeconds();
+        if (currentTime - this.lastAddedTime > 1.5) {
+            /* clear errors coz this slow speed is a human*/
+            this.setState({ fileError: "" });
+        }
+
+        this.lastAddedTime = currentTime;
+        this.props.createObject(file);
     }
 
     private handleOnDropEvent = () => {
@@ -102,7 +113,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         if (this.props.executeAction) {
             this.props.executeAction("onDrop");
         }
-     }
+    }
 
     private customErrorHandler = (file: DropzoneLib.DropzoneFile) => {
         const fileExtension = file.name.split(".").pop();
@@ -162,15 +173,15 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                     });
                 }
             });
+        }
     }
-}
 
     /* check for errors before upload */
     private handleUploud = () => {
 
         if (this.arrayOfFiles.length) {
             this.arrayOfFiles.map((fileobject) => {
-                if (fileobject.file) {
+                if (fileobject.file && fileobject.status === "pending") {
                     /* Perform validation */
                     if (this.customErrorHandler(fileobject.file)) {
                         // this.arrayOfFiles.splice(0, 1);
@@ -190,20 +201,12 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     /* Generic upload function */
     private upload = (returnedObject: ReturnObject) => {
         if (returnedObject.file) {
-            this.props.saveFileToDatabase(returnedObject.guid, returnedObject.file);
+            this.props.saveFileToDatabase(returnedObject.guid, returnedObject.file, this.dropzone);
             // think about handling the progress
-            this.saveFile(returnedObject.file);
-        }
-    }
-
-    private saveFile(file: DropzoneLib.DropzoneFile) {
-        /* Remove file from array after upload */
-        this.dropzone.emit("uploadprogress", file, 50);
-        this.dropzone.emit("complete", file);
-        this.dropzone.emit("success", file);
-         /* deal with on upload events */
-        if (this.props.executeAction) {
-            this.props.executeAction("onUpload");
+            returnedObject.status = "uploaded";
+            if (this.props.executeAction) {
+                this.props.executeAction("onUpload");
+            }
         }
     }
 
