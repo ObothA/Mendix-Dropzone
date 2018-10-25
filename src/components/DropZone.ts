@@ -3,33 +3,18 @@ import * as DropzoneLib from "dropzone";
 import { Alert } from "./Alert";
 import "dropzone/dist/dropzone.css";
 import "../ui/DropZone.css";
-import { Nanoflow } from "./DropZoneContainer";
 
-interface DropzoneProps {
+export interface DropzoneProps {
     message: string;
-    contextAssociation: string;
-    mxObject: mendix.lib.MxObject;
     maxFileSize: number;
     maxFiles: number;
     fileTypes: string;
     autoUpload: string;
     thumbnailWidth: number;
     thumbnailHeight: number;
-    onDropMicroflow: string;
-    onRemoveMicroflow: string;
-    onUploadMicroflow: string;
-    mxform: mxui.lib.form._FormBase;
-    onDropNanoflow: Nanoflow;
-    onRemoveNanoflow: Nanoflow;
-    onUploadNanoflow: Nanoflow;
-    mxContext: mendix.lib.MxContext;
-    onDropEvent: string;
-    onRemoveEvent: string;
-    onUploadEvent: string;
-    reference: string;
     fileobject: ReturnObject;
-    executeAction: (event: string, microflow?: string, nanoflow?: Nanoflow) => void;
-    createObject: (reference: string, mxObject: mendix.lib.MxObject, file: DropzoneLib.DropzoneFile) => void;
+    executeAction?: (event: string) => void;
+    createObject: (file: DropzoneLib.DropzoneFile) => void;
     saveFileToDatabase: (guid: string, file: DropzoneLib.DropzoneFile) => void;
 }
 
@@ -47,7 +32,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private formNode!: HTMLElement;
     private arrayOfFiles: ReturnObject[] = [];
     private numberOfFilesAdded = 0;
-    private removeErrorDisplay = false;
+    private fileRemover = "user";
 
     readonly state: DropzoneState = {
         fileError: ""
@@ -59,6 +44,12 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     componentDidMount() {
         this.dropzone = this.setupDropZone();
+    }
+
+    componentWillUnmount() {
+        if (this.dropzone) {
+            this.dropzone.destroy();
+        }
     }
 
     componentWillReceiveProps(newProps: DropzoneProps) {
@@ -95,9 +86,8 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         myDropzone.on("error", this.handleErrorsFromLibrary);
 
         myDropzone.on("addedfile", (file) => {
-                this.enableRemoveError();
-                const { reference, mxObject } = this.props;
-                this.props.createObject(reference, mxObject, file);
+                // deal with clearing error using epoch
+                this.props.createObject(file);
             });
 
         myDropzone.on("removedfile", (file) => { this.handleRemovedFile(file); });
@@ -106,18 +96,11 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         return myDropzone;
     }
 
-    private enableRemoveError = () => {
-        setTimeout(() => { this.removeErrorDisplay = true; }, 1000);
-    }
-
     private handleOnDropEvent = () => {
         /* deal with on drop events */
-        if (this.removeErrorDisplay && this.state.fileError) {
-            this.setState({ fileError: "" });
-        }
 
-        if (this.props.onDropEvent !== "doNothing") {
-            this.props.executeAction(this.props.onDropEvent, this.props.onDropMicroflow, this.props.onDropNanoflow);
+        if (this.props.executeAction) {
+            this.props.executeAction("onDrop");
         }
      }
 
@@ -130,20 +113,12 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             this.setState({
                 fileError: `${this.state.fileError} ${displayMessage}`
             });
-
-            if (this.dropzone) {
-                this.dropzone.removeFile(file);
-            }
             return true;
         } else if (this.numberOfFilesAdded > this.props.maxFiles) {
             const displayMessage = `${file.name} wont be uploaded, exceded limit of ${this.props.maxFiles} files\n`;
             this.setState({
                 fileError: `${this.state.fileError} ${displayMessage}`
             });
-
-            if (this.dropzone) {
-                this.dropzone.removeFile(file);
-            }
             return true;
         } else if (this.props.fileTypes && fileExtension && !this.props.fileTypes.includes(fileExtension)) {
             /* file type error */
@@ -152,10 +127,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             this.setState({
                 fileError: `${this.state.fileError} ${displayMessage}`
             });
-
-            if (this.dropzone) {
-                this.dropzone.removeFile(file);
-            }
             return true;
         } else {
             return false;
@@ -164,21 +135,24 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     /* handle remove file */
     private handleRemovedFile = (file: DropzoneLib.DropzoneFile) => {
-        if (this.removeErrorDisplay && this.state.fileError) {
+        if (this.fileRemover === "user" && this.state.fileError) {
             this.setState({ fileError: "" });
+        } else if (this.fileRemover === "errorHandler") {
+            /* reset removing entity*/
+            this.fileRemover = "user";
         }
 
         if (this.arrayOfFiles.length) {
             this.arrayOfFiles.map((fileobject) => {
                 if (file === fileobject.file) {
+                    this.numberOfFilesAdded--;
+                    this.arrayOfFiles.splice(this.arrayOfFiles.indexOf(fileobject), 1);
                     mx.data.remove({
                         guid: fileobject.guid,
                         callback: () => {
-                            this.numberOfFilesAdded--;
-                            this.arrayOfFiles.splice(this.arrayOfFiles.indexOf(fileobject), 1);
                             /* deal with on remove events */
-                            if (this.props.onRemoveEvent !== "doNothing") {
-                                this.props.executeAction(this.props.onRemoveEvent, this.props.onRemoveMicroflow, this.props.onRemoveNanoflow);
+                            if (this.props.executeAction) {
+                                this.props.executeAction("onRemove");
                             }
                             // break out of map loop
                         },
@@ -193,16 +167,17 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     /* check for errors before upload */
     private handleUploud = () => {
-        if (this.removeErrorDisplay && this.state.fileError) {
-            this.setState({ fileError: "" });
-        }
 
         if (this.arrayOfFiles.length) {
             this.arrayOfFiles.map((fileobject) => {
                 if (fileobject.file) {
                     /* Perform validation */
                     if (this.customErrorHandler(fileobject.file)) {
-                        this.arrayOfFiles.splice(0, 1);
+                        // this.arrayOfFiles.splice(0, 1);
+                        if (this.dropzone) {
+                            this.fileRemover = "errorHandler";
+                            this.dropzone.removeFile(fileobject.file);
+                        }
                     } else {
                         this.upload(fileobject);
                     }
@@ -227,15 +202,12 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         this.dropzone.emit("complete", file);
         this.dropzone.emit("success", file);
          /* deal with on upload events */
-        if (this.props.onUploadEvent !== "doNothing") {
-            this.props.executeAction(this.props.onUploadEvent, this.props.onUploadMicroflow, this.props.onUploadNanoflow);
+        if (this.props.executeAction) {
+            this.props.executeAction("onUpload");
         }
     }
 
     private handleErrorsFromLibrary = (file: DropzoneLib.DropzoneFile, message: string) => {
-        if (this.removeErrorDisplay && this.state.fileError) {
-            this.setState({ fileError: "" });
-        }
 
         const displayMessage = `${file.name} wont be uploaded, ${message}\n`;
         if (this.dropzone) {
