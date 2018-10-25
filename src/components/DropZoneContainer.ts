@@ -56,7 +56,8 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
         this.state = {
             fileObject: {
                 file: undefined,
-                guid: ""
+                guid: "",
+                status: "pending"
             }
         };
     }
@@ -150,16 +151,17 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
     private getValue = (guid: string, file: any) => {
         this.setState({ fileObject: {
             guid,
-            file
+            file,
+            status: "pending"
         }
         });
     }
 
-    private saveFileToMendix(guid: string, file: DropzoneLib.DropzoneFile) {
+    private saveFileToMendix(guid: string, file: DropzoneLib.DropzoneFile, dropzone: DropzoneLib) {
         mx.data.saveDocument(guid, file.name, {}, file,
                         () => {
-                            // tslint:disable-next-line:no-console
-                            console.log("file successfully saved");
+                            dropzone.emit("complete", file);
+                            dropzone.emit("success", file);
                         },
                         saveDocumentError => mx.ui.error(`${saveDocumentError}`)
                     );
