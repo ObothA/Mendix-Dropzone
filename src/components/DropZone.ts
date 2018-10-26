@@ -32,7 +32,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private dropzone!: DropzoneLib;
     private formNode!: HTMLElement;
     private arrayOfFiles: ReturnObject[] = [];
-    private numberOfFilesAdded = 0;
+    private numberOfFilesUploaded = 0;
     private fileRemover = "user";
     private lastAddedTime = new Date().getSeconds();
 
@@ -125,7 +125,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                 fileError: `${this.state.fileError} ${displayMessage}`
             });
             return true;
-        } else if (this.numberOfFilesAdded === this.props.maxFiles) {
+        } else if (this.numberOfFilesUploaded === this.props.maxFiles) {
             const displayMessage = `${file.name} wont be uploaded, exceded limit of ${this.props.maxFiles} files\n`;
             this.setState({
                 fileError: `${this.state.fileError} ${displayMessage}`
@@ -157,7 +157,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             this.arrayOfFiles.map((fileobject) => {
                 if (file === fileobject.file) {
                     if (fileobject.status === "uploaded") {
-                        this.numberOfFilesAdded--;
+                        this.numberOfFilesUploaded--;
                     }
                     this.arrayOfFiles.splice(this.arrayOfFiles.indexOf(fileobject), 1);
                     mx.data.remove({
@@ -203,7 +203,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private upload = (returnedObject: ReturnObject) => {
         if (returnedObject.file && this.props.saveFileToDatabase) {
             returnedObject.status = "uploaded";
-            this.numberOfFilesAdded++;
+            this.numberOfFilesUploaded++;
             this.props.saveFileToDatabase(returnedObject.guid, returnedObject.file, this.dropzone);
             // think about handling the progress
             if (this.props.executeAction) {
