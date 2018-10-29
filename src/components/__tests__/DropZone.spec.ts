@@ -1,45 +1,48 @@
-// import { createElement } from "react";
-// import { shallow } from "enzyme";
+import { createElement } from "react";
+import { shallow } from "enzyme";
 
-// import Dropzone, { DropzoneProps } from "../DropZone";
+import { Alert } from "../Alert";
+import Dropzone, { DropzoneProps } from "../DropZone";
 
-// const renderDropZone = (props: DropzoneProps) => shallow(createElement(Dropzone, props));
-// const dropZoneProps: DropzoneProps = {
-//     message: "",
-//     fileEntity: string;
-//     contextAssociation: string;
-//     mxObject: mendix.lib.MxObject;
-//     maxFileSize: number;
-//     maxFiles: number;
-//     fileTypes: string;
-//     autoUpload: string;
-//     thumbnailWidth: number;
-//     thumbnailHeight: number;
-//     onDropMicroflow: string;
-//     onRemoveMicroflow: string;
-//     onUploadMicroflow: string;
-//     mxform: mxui.lib.form._FormBase;
-//     onDropNanoflow: Nanoflow;
-//     onRemoveNanoflow: Nanoflow;
-//     onUploadNanoflow: Nanoflow;
-//     mxContext: mendix.lib.MxContext;
-//     onDropEvent: string;
-//     onRemoveEvent: string;
-//     onUploadEvent: string;
-//     reference: string;
-//     fileobject: ReturnObject;
-//     createObject: (fileEntity: string, reference: string, mxObject: mendix.lib.MxObject, file: DropzoneLib.DropzoneFile) => void;
-//     saveFileToDatabase: (guid: string, file: DropzoneLib.DropzoneFile) => void;
-// };
+const renderDropZone = (props: DropzoneProps) => shallow(createElement(Dropzone, props));
+const dropZoneProps: DropzoneProps = {
+    message: "click or drop to upload files",
+    maxFileSize: 5,
+    maxFiles: 3,
+    fileTypes: "",
+    autoUpload: true,
+    thumbnailWidth: 250,
+    thumbnailHeight: 250,
+    fileobject: {
+        file: undefined,
+        guid: "",
+        status: "pending"
+    }
+};
 
-// describe("Dropzone", () => {
-//     it("renders structure correctly", () => {
-//         const dropzone = renderDropZone(dropZoneProps);
-//         expect(dropzone).toBeElement(
-//             createElement("div", { className: "dropzoneContainer" },
-//                 this.props.autoUpload ? "" : createElement("button", { className: "btn mx-button uploadButton", onClick: this.handleUploud }, "upload file(s)"),
-//                 createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getFormNode }),
-//                 createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileError)
-//             ));
-//     });
-// });
+describe("Dropzone", () => {
+    it("with auto upload renders structure correctly", () => {
+        const dropzone = renderDropZone(dropZoneProps);
+
+        expect(dropzone).toBeElement(
+            createElement("div", { className: "dropzoneContainer" },
+                "",
+                createElement("form", { className: "dropzone", id: "dropzoneArea" }),
+                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" })
+            )
+        );
+    });
+
+    it("without auto upload renders structure correctly", () => {
+        const dropzone = renderDropZone(dropZoneProps);
+        dropzone.setProps({ autoUpload: false });
+
+        expect(dropzone).toBeElement(
+            createElement("div", { className: "dropzoneContainer" },
+                createElement("button", { className: "btn mx-button uploadButton", onClick: jasmine.any(Function) }, "upload file(s)"),
+                createElement("form", { className: "dropzone", id: "dropzoneArea" }),
+                createElement(Alert, { className: "widget-dropdown-type-ahead-alert" })
+            )
+        );
+    });
+});

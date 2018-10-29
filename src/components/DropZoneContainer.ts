@@ -19,7 +19,7 @@ export interface DropZoneContainerProps extends WrapperProps {
     maxFileSize: number;
     maxFiles: number;
     fileTypes: string;
-    autoUpload: string;
+    autoUpload: boolean;
     thumbnailWidth: number;
     thumbnailHeight: number;
     onDropMicroflow: string;

@@ -9,13 +9,13 @@ export interface DropzoneProps {
     maxFileSize: number;
     maxFiles: number;
     fileTypes: string;
-    autoUpload: string;
+    autoUpload: boolean;
     thumbnailWidth: number;
     thumbnailHeight: number;
     fileobject: ReturnObject;
     executeAction?: (event: string) => void;
-    createObject: (file: DropzoneLib.DropzoneFile) => void;
-    saveFileToDatabase: (guid: string, file: DropzoneLib.DropzoneFile, dropzone: DropzoneLib) => void;
+    createObject?: (file: DropzoneLib.DropzoneFile) => void;
+    saveFileToDatabase?: (guid: string, file: DropzoneLib.DropzoneFile, dropzone: DropzoneLib) => void;
 }
 
 export interface ReturnObject {
@@ -32,7 +32,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private dropzone!: DropzoneLib;
     private formNode!: HTMLElement;
     private arrayOfFiles: ReturnObject[] = [];
-    private numberOfFilesAdded = 0;
+    private numberOfFilesUploaded = 0;
     private fileRemover = "user";
     private lastAddedTime = new Date().getSeconds();
 
@@ -45,7 +45,9 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     }
 
     componentDidMount() {
+        if (this.formNode) {
         this.dropzone = this.setupDropZone();
+        }
     }
 
     componentWillUnmount() {
@@ -57,7 +59,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     componentWillReceiveProps(newProps: DropzoneProps) {
         if (newProps.fileobject.file) {
             this.arrayOfFiles.push(newProps.fileobject);
-            this.numberOfFilesAdded++;
             if (this.props.autoUpload) {
                 this.handleUploud();
             }
@@ -73,7 +74,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     }
 
     private setupDropZone() {
-
         const myDropzone = new DropzoneLib(this.formNode, {
             url: "/not/required/",
             dictDefaultMessage: this.props.message,
@@ -104,7 +104,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         }
 
         this.lastAddedTime = currentTime;
-        this.props.createObject(file);
+        if (this.props.createObject) { this.props.createObject(file); }
     }
 
     private handleOnDropEvent = () => {
@@ -125,7 +125,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                 fileError: `${this.state.fileError} ${displayMessage}`
             });
             return true;
-        } else if (this.numberOfFilesAdded > this.props.maxFiles) {
+        } else if (this.numberOfFilesUploaded === this.props.maxFiles) {
             const displayMessage = `${file.name} wont be uploaded, exceded limit of ${this.props.maxFiles} files\n`;
             this.setState({
                 fileError: `${this.state.fileError} ${displayMessage}`
@@ -156,7 +156,9 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         if (this.arrayOfFiles.length) {
             this.arrayOfFiles.map((fileobject) => {
                 if (file === fileobject.file) {
-                    this.numberOfFilesAdded--;
+                    if (fileobject.status === "uploaded") {
+                        this.numberOfFilesUploaded--;
+                    }
                     this.arrayOfFiles.splice(this.arrayOfFiles.indexOf(fileobject), 1);
                     mx.data.remove({
                         guid: fileobject.guid,
@@ -165,7 +167,6 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                             if (this.props.executeAction) {
                                 this.props.executeAction("onRemove");
                             }
-                            // break out of map loop
                         },
                         error: error => {
                             mx.ui.error(`Error attempting to remove dropzone item  ${error}`);
@@ -200,10 +201,11 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     /* Generic upload function */
     private upload = (returnedObject: ReturnObject) => {
-        if (returnedObject.file) {
+        if (returnedObject.file && this.props.saveFileToDatabase) {
+            returnedObject.status = "uploaded";
+            this.numberOfFilesUploaded++;
             this.props.saveFileToDatabase(returnedObject.guid, returnedObject.file, this.dropzone);
             // think about handling the progress
-            returnedObject.status = "uploaded";
             if (this.props.executeAction) {
                 this.props.executeAction("onUpload");
             }
