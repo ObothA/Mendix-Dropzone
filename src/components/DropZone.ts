@@ -46,7 +46,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     componentDidMount() {
         if (this.formNode) {
-        this.dropzone = this.setupDropZone();
+            this.dropzone = this.setupDropZone();
         }
     }
 

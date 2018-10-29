@@ -1,10 +1,11 @@
 import { createElement } from "react";
-import { shallow } from "enzyme";
+import { mount, shallow } from "enzyme";
 
 import { Alert } from "../Alert";
 import Dropzone, { DropzoneProps } from "../DropZone";
 
 const renderDropZone = (props: DropzoneProps) => shallow(createElement(Dropzone, props));
+const fullRenderDropZone = (props: DropzoneProps) => mount(createElement(Dropzone, props));
 const dropZoneProps: DropzoneProps = {
     message: "click or drop to upload files",
     maxFileSize: 5,
@@ -44,5 +45,17 @@ describe("Dropzone", () => {
                 createElement(Alert, { className: "widget-dropdown-type-ahead-alert" })
             )
         );
+    });
+});
+
+describe("dropzone methods", () => {
+    it("lets just test 1 method", () => {
+        const dropzone = fullRenderDropZone(dropZoneProps);
+        const dropzoneInstance: any = dropzone.instance();
+        dropzoneInstance.formNode = document.createElement("div");
+        const setupSpy = spyOn(dropzoneInstance, "setupDropZone").and.callThrough();
+        dropzoneInstance.componentDidMount();
+
+        expect(setupSpy).toHaveBeenCalled();
     });
 });
