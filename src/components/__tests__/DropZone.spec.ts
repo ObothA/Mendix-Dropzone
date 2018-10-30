@@ -46,10 +46,8 @@ describe("Dropzone", () => {
             )
         );
     });
-});
 
-describe("dropzone methods", () => {
-    it("lets just test 1 method", () => {
+    it("test the method that setsup the dropzone", () => {
         const dropzone = fullRenderDropZone(dropZoneProps);
         const dropzoneInstance: any = dropzone.instance();
         dropzoneInstance.formNode = document.createElement("div");
@@ -58,4 +56,27 @@ describe("dropzone methods", () => {
 
         expect(setupSpy).toHaveBeenCalled();
     });
+
+    it("test on drop event", () => {
+        const dropzone = fullRenderDropZone(dropZoneProps);
+        const dropzoneInstance: any = dropzone.instance();
+        dropzoneInstance.formNode = document.createElement("div");
+        const onDrop = spyOn(dropzoneInstance, "handleOnDropEvent").and.callThrough();
+        dropzoneInstance.componentDidMount();
+        dropzoneInstance.dropzone.emit("drop");
+
+        expect(onDrop).toHaveBeenCalled();
+    });
+
+    it("test on error event from dropzone", () => {
+        const dropzone = fullRenderDropZone(dropZoneProps);
+        const dropzoneInstance: any = dropzone.instance();
+        dropzoneInstance.formNode = document.createElement("div");
+        const onError = spyOn(dropzoneInstance, "handleErrorsFromLibrary").and.callThrough();
+        dropzoneInstance.componentDidMount();
+        dropzoneInstance.dropzone.emit("error", "C:\Users\oboth\Pictures\subi - Copy - Copy.jfif", "error");
+
+        expect(onError).toHaveBeenCalled();
+    });
+
 });
