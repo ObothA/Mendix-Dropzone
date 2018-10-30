@@ -1,7 +1,6 @@
 /* tslint:disable */
 
 class MxMock implements mx.MxInterface {
-    onlineData!: mx.OnlineData;
     appUrl: string = "";
     baseUrl: string = "";
     modulePath: string = "";
