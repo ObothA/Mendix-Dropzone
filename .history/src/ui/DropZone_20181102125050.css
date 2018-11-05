@@ -13,11 +13,6 @@
 .btn, .mx-button{
     margin-bottom: 0.70% !important ;
 }
-.dropzone, .dz-clickable, .dz-started{
-    display: grid !important ;
-    opacity: unset !important;
-}
-.dropzone .dz-preview .dz-details {
-    opacity: unset;
-    z-index: unset !important
+.dz-details{
+    margin-left: 0.70%;
 }

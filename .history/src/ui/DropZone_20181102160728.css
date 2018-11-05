@@ -18,6 +18,7 @@
     opacity: unset !important;
 }
 .dropzone .dz-preview .dz-details {
-    opacity: unset;
-    z-index: unset !important
+    opacity: unset !important;
+    z-index: unset !important;
+    padding: unset !important;
 }
