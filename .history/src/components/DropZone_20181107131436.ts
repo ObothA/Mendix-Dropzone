@@ -85,9 +85,9 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             thumbnailWidth: this.props.thumbnailWidth,
             thumbnailHeight: this.props.thumbnailHeight,
             previewTemplate: `
-            <div class="container">
-    <div class="container">
-        <table class="table borderless">
+            <div class="dz-preview dz-file-preview">
+    <div class="dz-details">
+        <table class="table">
             <tr>
                 <td>
                     <div class="dz-img">
@@ -104,6 +104,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                     </div>
                 </td>
                 <td>
+
                     <div class="progress-circle over50 p100">
                         <span>✔</span>
                         <div class="left-half-clipper">

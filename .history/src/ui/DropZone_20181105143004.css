@@ -1,0 +1,32 @@
+.dropzone {
+  border: 2px dashed #0087F7 !important;
+  border-radius: 5px;
+}
+
+.uploadButton {
+  margin-bottom: 0.3%;
+}
+
+.alert-danger{
+    margin-top: 0.45% !important;
+}
+.btn, .mx-button{
+    margin-bottom: 0.70% !important ;
+}
+/*
+.dropzone, .dz-clickable, .dz-started{
+    display: grid !important ;
+    opacity: unset !important;
+}
+.dropzone .dz-preview .dz-details {
+    opacity: unset;
+    z-index: unset !important
+}
+.dz-progress{
+    margin-left: 40% !important;
+    background-color: blue !important;
+}
+.dz-details{
+    display: contents !important;
+}
+*/

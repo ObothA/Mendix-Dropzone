@@ -85,9 +85,9 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             thumbnailWidth: this.props.thumbnailWidth,
             thumbnailHeight: this.props.thumbnailHeight,
             previewTemplate: `
-            <div class="container">
+            <div class="dz-preview dz-file-preview">
     <div class="container">
-        <table class="table borderless">
+        <table class="table">
             <tr>
                 <td>
                     <div class="dz-img">

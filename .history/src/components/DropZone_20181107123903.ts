@@ -3,7 +3,6 @@ import * as DropzoneLib from "dropzone";
 import { Alert } from "./Alert";
 import "dropzone/dist/dropzone.css";
 import "../ui/DropZone.css";
-import "bootstrap/dist/css/bootstrap.css";
 
 export interface DropzoneProps {
     message: string;
@@ -85,9 +84,9 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             thumbnailWidth: this.props.thumbnailWidth,
             thumbnailHeight: this.props.thumbnailHeight,
             previewTemplate: `
-            <div class="container">
-    <div class="container">
-        <table class="table borderless">
+            <div class="dz-preview dz-file-preview">
+    <div class="dz-details">
+        <table class="dz-table">
             <tr>
                 <td>
                     <div class="dz-img">
@@ -115,8 +114,8 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
                     <div class="dz-error-mark"><span>✘</span></div> -->
                         <div class="dz-error-message">
                             <span data-dz-errormessage></span>
-
-                </td>            </div>
+                        </div>
+                </td>
             </tr>
         </table>
         </div>

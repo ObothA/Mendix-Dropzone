@@ -3,7 +3,6 @@ import * as DropzoneLib from "dropzone";
 import { Alert } from "./Alert";
 import "dropzone/dist/dropzone.css";
 import "../ui/DropZone.css";
-import "bootstrap/dist/css/bootstrap.css";
 
 export interface DropzoneProps {
     message: string;
@@ -80,47 +79,22 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             dictDefaultMessage: this.props.message,
             uploadMultiple: true,
             autoProcessQueue: false,
-            addRemoveLinks: false,
+            addRemoveLinks: true,
             createImageThumbnails: true,
             thumbnailWidth: this.props.thumbnailWidth,
             thumbnailHeight: this.props.thumbnailHeight,
-            previewTemplate: `
-            <div class="container">
-    <div class="container">
-        <table class="table borderless">
-            <tr>
-                <td>
-                    <div class="dz-img">
-                        <img data-dz-thumbnail />
-                    </div>
-                </td>
-                <td>
-                    <div class="dz-members">
-                        <div class="dz-filename">
-                            <span data-dz-name></span>
-                        </div>
-                        <div class="dz-size" data-dz-size></div>
-                        <a class="dz-remove" href="javascript:undefined;" data-dz-remove="">Remove file</a>
-                    </div>
-                </td>
-                <td>
-                    <div class="progress-circle over50 p100">
-                        <span>✔</span>
-                        <div class="left-half-clipper">
-                            <div class="first50-bar"></div>
-                            <div class="value-bar"></div>
-                        </div>
-                        <!-- <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>
-                    <div class="dz-success-mark"><span>✔</span></div>
-                    <div class="dz-error-mark"><span>✘</span></div> -->
-                        <div class="dz-error-message">
-                            <span data-dz-errormessage></span>
-
-                </td>            </div>
-            </tr>
-        </table>
-        </div>
-    </div>`
+            previewTemplate: `<div class="dz-preview dz-file-preview">
+            <div class="dz-details">
+              <div class="dz-filename"><span data-dz-name></span>
+              <div class="dz-size" data-dz-size></div>
+              </div>
+              <img data-dz-thumbnail />
+            </div>
+            <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>
+            <div class="dz-success-mark"><span>✔</span></div>
+            <div class="dz-error-mark"><span>✘</span></div>
+            <div class="dz-error-message"><span data-dz-errormessage></span></div>
+          </div>`
         });
 
         myDropzone.on("error", this.handleErrorsFromLibrary);

@@ -20,32 +20,25 @@
 }
 .dropzone .dz-preview .dz-details {
     opacity: unset;
-    z-index: unset !important;
-    padding: unset !important;
+    z-index: unset !important
 }
 .dz-table{
-    position: absolute;
+    object-position: 7px
 }
 .dz-progress{
     /* margin-left: 40% !important; */
     background-color: blue !important;
 }
-.dz-details{
-    position: relative !important;
-}
+/* .dz-details{
+    display: contents !important;
+} */
 .dz-progress{
     margin-left: 42% !important;
-}
-.dz-members{
-    text-align: left;
 }
 .dz-filename{
     font-family: sans-serif;
     font-size: large;
     margin-left: 20px
-}
-.borderless td{
-    border: none !important;
 }
 .progress-circle {
     font-size: 20px;
@@ -57,7 +50,7 @@
     background-color: #F2E9E1;
     border-radius: 50%;
     line-height: 5em;
-       float: right;
+       float: left;
  }
  .progress-circle:after{
     border: none;

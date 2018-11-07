@@ -63,7 +63,7 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
     }
 
     render() {
-        return createElement("div", { className: "container" }, createElement(Dropzone, {
+        return createElement("div", {}, createElement(Dropzone, {
             message: this.props.message,
             maxFileSize: this.props.maxFileSize,
             maxFiles: this.maxFiles,

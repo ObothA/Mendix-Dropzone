@@ -87,7 +87,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
             previewTemplate: `
             <div class="container">
     <div class="container">
-        <table class="table borderless">
+        <table class="table">
             <tr>
                 <td>
                     <div class="dz-img">

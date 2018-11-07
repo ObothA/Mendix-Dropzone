@@ -110,7 +110,9 @@
     "webworkify-webpack": "^2.1.3"
   },
   "dependencies": {
+    "bootstrap": "^4.1.3",
     "classnames": "^2.2.5",
-    "dropzone": "^5.5.1"
+    "dropzone": "^5.5.1",
+    "progressbar.js": "^1.0.1"
   }
 }

@@ -63,7 +63,7 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
     }
 
     render() {
-        return createElement("div", { className: "container" }, createElement(Dropzone, {
+        return createElement(Dropzone, {
             message: this.props.message,
             maxFileSize: this.props.maxFileSize,
             maxFiles: this.maxFiles,
@@ -75,8 +75,7 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
             createObject: this.createObject,
             fileobject: this.state.fileObject,
             saveFileToDatabase: this.saveFileToMendix
-        })
-    );
+        });
     }
 
     componentWillReceiveProps(newProps: DropZoneContainerProps) {
