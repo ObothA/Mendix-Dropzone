@@ -26,9 +26,11 @@ export interface ReturnObject {
 
 interface DropzoneState {
     fileError: string;
+    url: string;
 }
 
 export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
+    private uploadURL = "/i/i";
     private dropzone!: DropzoneLib;
     private formNode!: HTMLElement;
     private arrayOfFiles: ReturnObject[] = [];
@@ -37,7 +39,8 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
     private lastAddedTime = new Date().getSeconds();
 
     readonly state: DropzoneState = {
-        fileError: ""
+        fileError: "",
+        url: "initial/url"
     };
 
     render() {
@@ -65,34 +68,51 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         }
     }
 
+    /* tested */
     private renderDropzone = () => {
         return createElement("div", { className: "dropzoneContainer" },
-            this.props.autoUpload ? "" : createElement("button", { className: "btn mx-button uploadButton", onClick: this.handleUploud }, "upload file(s)"),
-            createElement("form", { className: "dropzone", id: "dropzoneArea", ref: this.getFormNode }),
+            this.props.autoUpload ? "" : createElement("button", { className: "btn mx-button uploadButton", onClick: this.handleUploud, method: "POST" }, "upload file(s)"),
+            createElement("div", { className: "dropzone", id: "dropzoneArea", ref: this.getFormNode }),
             createElement(Alert, { className: "widget-dropdown-type-ahead-alert" }, this.state.fileError)
         );
     }
 
+    /** tested */
     private setupDropZone() {
         const myDropzone = new DropzoneLib(this.formNode, {
-            url: "/not/required/",
+            url: this.getUrl as any,
+            paramName: "blob",
             dictDefaultMessage: this.props.message,
             uploadMultiple: true,
             autoProcessQueue: false,
             addRemoveLinks: true,
             createImageThumbnails: true,
             thumbnailWidth: this.props.thumbnailWidth,
-            thumbnailHeight: this.props.thumbnailHeight
+            thumbnailHeight: this.props.thumbnailHeight,
+            headers: {
+                "X-Csrf-Token": mx.session.getConfig("csrftoken"),
+                "X-Requested-With": "XMLHttpRequest"
+            }
         });
 
         myDropzone.on("error", this.handleErrorsFromLibrary);
+        myDropzone.on("success", this.formData.bind(this));
 
-        myDropzone.on("addedfile", (file) => { this.handleAddedFile(file); });
+        myDropzone.on("addedfile", (file) => this.handleAddedFile(file));
 
         myDropzone.on("removedfile", (file) => { this.handleRemovedFile(file); });
         myDropzone.on("drop", this.handleOnDropEvent);
+        myDropzone.on("sending", (_file, _xhr, _formData) => { this.formData(_formData); });
 
         return myDropzone;
+    }
+
+    private formData(formData: any) {
+        formData.append("data", "{\"changes\":{},\"objects\":[]}");
+    }
+
+    private getUrl = () => {
+        return this.uploadURL;
     }
 
     private handleAddedFile(file: DropzoneLib.DropzoneFile) {
@@ -107,6 +127,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         if (this.props.createObject) { this.props.createObject(file); }
     }
 
+    /* tested */
     private handleOnDropEvent = () => {
         /* deal with on drop events */
 
@@ -144,6 +165,7 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         }
     }
 
+    /** tested */
     /* handle remove file */
     private handleRemovedFile = (file: DropzoneLib.DropzoneFile) => {
         if (this.fileRemover === "user" && this.state.fileError) {
@@ -179,13 +201,13 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     /* check for errors before upload */
     private handleUploud = () => {
-
+        let error;
         if (this.arrayOfFiles.length) {
             this.arrayOfFiles.map((fileobject) => {
                 if (fileobject.file && fileobject.status === "pending") {
                     /* Perform validation */
-                    if (this.customErrorHandler(fileobject.file)) {
-                        // this.arrayOfFiles.splice(0, 1);
+                    error = this.customErrorHandler(fileobject.file);
+                    if (error) {
                         if (this.dropzone) {
                             this.fileRemover = "errorHandler";
                             this.dropzone.removeFile(fileobject.file);
@@ -201,10 +223,13 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
 
     /* Generic upload function */
     private upload = (returnedObject: ReturnObject) => {
-        if (returnedObject.file && this.props.saveFileToDatabase) {
+        if (returnedObject.file && this.props.saveFileToDatabase && this.dropzone) {
             returnedObject.status = "uploaded";
             this.numberOfFilesUploaded++;
-            this.props.saveFileToDatabase(returnedObject.guid, returnedObject.file, this.dropzone);
+            this.uploadURL = `/file?guid=${returnedObject.guid}&maxFileSize=500&height=75&width=100`;
+            this.dropzone.uploadFile(returnedObject.file);
+            // this.dropzone.processQueue();
+            // this.props.saveFileToDatabase(returnedObject.guid, returnedObject.file, this.dropzone);
             // think about handling the progress
             if (this.props.executeAction) {
                 this.props.executeAction("onUpload");
@@ -212,7 +237,12 @@ export default class Dropzone extends Component<DropzoneProps, DropzoneState> {
         }
     }
 
-    private handleErrorsFromLibrary = (file: DropzoneLib.DropzoneFile, message: string) => {
+    /* tested */
+    private handleErrorsFromLibrary = (file: DropzoneLib.DropzoneFile, message: any) => {
+        /**  at times message is an object */
+        if (message.description) {
+            message = message.description;
+        }
 
         const displayMessage = `${file.name} wont be uploaded, ${message}\n`;
         if (this.dropzone) {

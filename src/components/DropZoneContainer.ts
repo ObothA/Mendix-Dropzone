@@ -141,6 +141,16 @@ export default class DropZoneContainer extends Component<DropZoneContainerProps,
                     newFileObject.set(this.reference, this.contextObject.getGuid());
                 }
                 this.getValue(newFileObject.getGuid(), file);
+                mx.data.commit({
+                    mxobj: newFileObject,
+                    callback: () => {
+                        this.getValue(newFileObject.getGuid(), file);
+                    },
+                    error: (commitError) => {
+                        mx.ui.error(`Could not commit object: ${commitError}`);
+                    }
+                });
+
             },
             error: (createMxObjectError) => {
                 mx.ui.error(`Could not commit object:, ${createMxObjectError}`);
