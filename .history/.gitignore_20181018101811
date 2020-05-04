@@ -1,0 +1,4 @@
+dist/
+localSettings.js
+node_modules/
+.history/

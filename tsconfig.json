@@ -10,6 +10,7 @@
 
     "types": [
       "mendix-client",
+      "jasmine",
       "core-js"
     ],
     "moduleResolution": "node",
